@@ -1,9 +1,0 @@
-import express from "express";
-import cookieParser from "cookie-parser";
-import "reflect-metadata";
-const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-export default app;
-//# sourceMappingURL=app.js.map
