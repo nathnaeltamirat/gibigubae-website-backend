@@ -5,7 +5,7 @@ import { Department } from "./Department.js";
 @Entity()
 export class AcademicInfo {
   @PrimaryGeneratedColumn()
-  id_no!: number;
+  id!: number;
 
   @OneToOne(() => Student)
   @JoinColumn()
@@ -15,6 +15,6 @@ export class AcademicInfo {
   department!: Department;
 
   @Column() year!: string;
-  @Column() dorm_block!: string;
-  @Column() room_number!: string;
+  @Column() dormBlock!: string;
+  @Column() roomNumber!: string;
 }

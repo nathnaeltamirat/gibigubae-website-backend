@@ -9,7 +9,7 @@ export class ServiceMember {
   user_id!: number;
 
   @PrimaryColumn()
-  service_group!: number;
+  serviceGroup!: number;
 
   @ManyToOne(() => Student)
   student!: Student;
@@ -18,8 +18,8 @@ export class ServiceMember {
   group!: ServiceGroup;
 
   @ManyToOne(() => ServiceSubGroup)
-  sub_group!: ServiceSubGroup;
+  subGroup!: ServiceSubGroup;
 
   @Column()
-  service_role!: string;
+  serviceRole!: string;
 }

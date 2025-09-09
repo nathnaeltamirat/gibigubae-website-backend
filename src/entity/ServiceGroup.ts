@@ -6,14 +6,14 @@ export class ServiceGroup {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column() service_name!: string;
+  @Column() serviceName!: string;
   @Column("text") description!: string;
 
   @ManyToOne(() => Student)
   president!: Student;
 
   @ManyToOne(() => Student)
-  vice_president!: Student;
+  vicePresident!: Student;
 
   @ManyToOne(() => Student)
   secretary!: Student;

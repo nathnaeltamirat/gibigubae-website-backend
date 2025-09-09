@@ -6,5 +6,5 @@ export class Department {
   id!: number;
 
   @Column()
-  department_name!: string;
+  departmentName!: string;
 }
