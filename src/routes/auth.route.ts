@@ -1,7 +1,15 @@
-// import { Router } from "express";
-// import { signUp } from '../controllers/auth.controller.js';
-// const authRouter = Router()
+import { Router } from "express";
+import multer from "multer";
+import { signUp } from "../controllers/auth.controller.js";
 
-// authRouter.post("/sign-up",signUp);
+const authRouter = Router();
 
-// export default authRouter;
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 3 * 1024 * 1024 }, 
+});
+
+authRouter.post("/sign-up", upload.single("idCard"), signUp);
+
+export default authRouter;

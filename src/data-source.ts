@@ -27,7 +27,9 @@ export const AppDataSource = new DataSource({
   logging: true,
   entities: [Student,ConfessionFather,Department,Language,ServiceGroup,ServiceMember,ServiceSubGroup,SubAdminPermission,UserLanguage],
   subscribers: [],
- migrations: ["src/migration/**/*.ts"],
+ migrations: process.env.NODE_ENV === "production"
+    ? ["dist/migration/**/*.js"]
+    : [],
      migrationsTableName: "migrations",
 
 });
