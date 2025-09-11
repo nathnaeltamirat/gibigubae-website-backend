@@ -6,5 +6,5 @@ export class Language {
   id!: number;
 
   @Column()
-  language_name!: string;
+  languageName!: string;
 }

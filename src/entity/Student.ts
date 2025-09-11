@@ -9,17 +9,21 @@ export class Student {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column() first_name!: string;
-  @Column() last_name!: string;
-  @Column() christian_name!: string;
+  @Column() firstName!: string;
+  @Column() fatherName!: string;
+  @Column() grandFatherName!: string;
+  @Column() christianName!: string;
+  @Column({unique:true}) email!:string;
+  @Column() password!:string;
   @Column({ type: "enum", enum: GENDER }) gender!: GENDER;
-  @Column() phone_number!: string;
-  @Column() id_card_image_path!: string;
-  @Column() barcode!: string;
-  @Column({ type: "enum", enum: ROLE }) role!: ROLE;
-  @Column({ default: false }) is_verified!: boolean;
-  @Column({ type: 'timestamp', default: () => "CURRENT_TIMESTAMP" }) created_at!: Date;
+  @Column({length:15,name:"phoneNumber"}) phoneNumber!: string;
+  @Column() idCardImagePath!: string;
+  @Column({nullable:true}) barcode!: string;
+  
+  @Column({ type: "enum", enum: ROLE,default:"student" }) role!: ROLE;
+  @Column({ default: false }) isVerified!: boolean;
+  @Column({ type: 'timestamp', default: () => "CURRENT_TIMESTAMP" }) createdAt!: Date;
 
-  @ManyToOne(() => ConfessionFather, (father: ConfessionFather) => father.students, { onDelete: 'SET NULL' })
+  @ManyToOne(() => ConfessionFather, (father: ConfessionFather) => father.students, {nullable:true, onDelete: 'SET NULL' })
   confession_father!: ConfessionFather;
 }

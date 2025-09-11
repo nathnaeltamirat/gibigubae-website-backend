@@ -7,9 +7,9 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "emitDecoratorMetadata": true,
-"experimentalDecorators": true,
+    "experimentalDecorators": true,
     "target": "esnext",
-
+    "esModuleInterop": true,
     // Source + type outputs
     "sourceMap": true,
     "declaration": true,
@@ -32,9 +32,5 @@
     // Relax dev checks
     "skipLibCheck": true
   },
-  "exclude": [
-    "node_modules",
-    "dist",
-    "eslint.config.ts"
-  ]
+  "exclude": ["node_modules", "dist", "eslint.config.ts"]
 }

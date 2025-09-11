@@ -17,7 +17,7 @@ export class ServiceSubGroup {
   president!: Student;
 
   @ManyToOne(() => Student)
-  vice_president!: Student;
+  vicePresident!: Student;
 
   @ManyToOne(() => Student)
   secretary!: Student;

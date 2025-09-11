@@ -6,8 +6,8 @@ export class ConfessionFather {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column() full_name!: string;
-  @Column() phone_number!: string;
+  @Column() fullName!: string;
+  @Column() phoneNumber!: string;
 
   @OneToMany(() => Student, (student: Student) => student.confession_father)
   students!: Student[];
