@@ -14,7 +14,7 @@ interface CustomError extends Error {
 }
 
 export interface MulterRequest extends Request {
-  file?: Express.Multer.File | undefined; // make it optional
+  file?: Express.Multer.File | undefined; 
 }
 
 export const signUp = async (
