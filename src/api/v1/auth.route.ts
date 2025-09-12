@@ -73,10 +73,7 @@
  *           schema:
  *             type: object
  *             properties:
- *               email:
- *                 type: string
- *                 description: User email (either email or phoneNumber required)
- *               phoneNumber:
+ *               phoneOrEmail:
  *                 type: string
  *                 description: User phone number (either email or phoneNumber required)
  *               password:
