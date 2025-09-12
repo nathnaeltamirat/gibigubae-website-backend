@@ -10,8 +10,8 @@ const swaggerOptions = {
         },
         servers: [
             NODE_ENV === "production"
-                ? { url: "https://gibigubae-website-backend.onrender.com/", description: "Production server" }
-                : { url: `http://localhost:${PORT}`, description: "Development server" },
+                ? { url: "https://gibigubae-website-backend.onrender.com/api/v1", description: "Production server" }
+                : { url: `http://localhost:${PORT}/api/v1`, description: "Development server" },
         ],
     },
     apis: [
