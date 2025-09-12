@@ -3,25 +3,31 @@
     "rootDir": "./src",
     "outDir": "./dist",
 
-    // ESM compatible output
+    // Module and ESM support
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
     "target": "esnext",
     "esModuleInterop": true,
-    // Source + type outputs
+    "verbatimModuleSyntax": true,
+
+    // Decorators (for TypeORM)
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+
+    // Source maps and declaration files
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
 
-    // Type safety
+    // Keep comments for Swagger
+    "removeComments": false,
+
+    // Strict type safety
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
 
-    // Modern module style
-    "verbatimModuleSyntax": true,
+    // Isolated modules for ESM
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
