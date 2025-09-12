@@ -7,7 +7,7 @@
 
 /**
  * @swagger
- * /auth/sign-up:
+ * /sign-up:
  *   post:
  *     summary: Register a new student
  *     tags: [Auth]
@@ -62,7 +62,7 @@
 
 /**
  * @swagger
- * /auth/sign-in:
+ * /sign-in:
  *   post:
  *     summary: Sign in a student
  *     tags: [Auth]
