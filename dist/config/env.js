@@ -7,6 +7,8 @@ const getEnvVar = (name) => {
     }
     return value;
 };
+export const DATABASE_URL = getEnvVar('DATABASE_URL');
+export const NODE_ENV = getEnvVar('NODE_ENV');
 export const PORT = parseInt(getEnvVar('PORT'), 10);
 export const JWT_SECRET = getEnvVar('JWT_SECRET');
 export const JWT_EXPIRES_IN = getEnvVar('JWT_EXPIRES_IN');

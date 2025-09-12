@@ -1,5 +1,5 @@
 import path from "path";
-import { PORT } from "./env.js";
+import { PORT, NODE_ENV } from "./env.js";
 
 const swaggerOptions = {
   swaggerDefinition: {
@@ -10,16 +10,14 @@ const swaggerOptions = {
       description: "Backend Documentation for GibiGubae System Administration",
     },
     servers: [
-      {
-        url: `http://localhost:${PORT}`,
-        description: "Development server",
-      },
+      NODE_ENV === "production"
+        ? { url: "https://gibigubae-website-backend.onrender.com/", description: "Production server" }
+        : { url: `http://localhost:${PORT}`, description: "Development server" },
     ],
   },
   apis: [
-
-    path.join(process.cwd(), "src/api/v1/*.ts"),
-    path.join(process.cwd(), "dist/api/v1/*.js"),
+    path.join(process.cwd(), "src/api/v1/*.ts"),   
+    path.join(process.cwd(), "dist/api/v1/*.js"), 
   ],
 };
 
