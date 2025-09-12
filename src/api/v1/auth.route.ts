@@ -17,6 +17,17 @@
  *         multipart/form-data:
  *           schema:
  *             type: object
+ *             required:
+ *               - firstName
+ *               - fatherName
+ *               - grandFatherName
+ *               - christianName
+ *               - email
+ *               - password
+ *               - gender
+ *               - departmentName
+ *               - phoneNumber
+ *               - idCard
  *             properties:
  *               firstName:
  *                 type: string
@@ -62,18 +73,20 @@
  *           schema:
  *             type: object
  *             properties:
+ *               email:
+ *                 type: string
+ *                 description: User email (either email or phoneNumber required)
+ *               phoneNumber:
+ *                 type: string
+ *                 description: User phone number (either email or phoneNumber required)
  *               password:
  *                 type: string
+ *                 description: User password
  *             required:
  *               - password
  *             oneOf:
  *               - required: [email]
  *               - required: [phoneNumber]
- *             properties:
- *               email:
- *                 type: string
- *               phoneNumber:
- *                 type: string
  *     responses:
  *       201:
  *         description: Login successful
