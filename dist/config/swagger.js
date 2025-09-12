@@ -1,5 +1,5 @@
 import path from "path";
-import { PORT } from "./env.js";
+import { PORT, NODE_ENV } from "./env.js";
 const swaggerOptions = {
     swaggerDefinition: {
         openapi: "3.0.0",
@@ -9,10 +9,9 @@ const swaggerOptions = {
             description: "Backend Documentation for GibiGubae System Administration",
         },
         servers: [
-            {
-                url: `http://localhost:${PORT}`,
-                description: "Development server",
-            },
+            NODE_ENV === "production"
+                ? { url: "https://gibigubae-website-backend.onrender.com/", description: "Production server" }
+                : { url: `http://localhost:${PORT}`, description: "Development server" },
         ],
     },
     apis: [
