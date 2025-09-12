@@ -5,6 +5,6 @@ export class Department {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column()
+  @Column({unique:true})
   departmentName!: string;
 }

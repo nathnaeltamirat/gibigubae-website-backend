@@ -14,7 +14,7 @@ export class AcademicInfo {
   @ManyToOne(() => Department)
   department!: Department;
 
-  @Column() year!: string;
-  @Column() dormBlock!: string;
-  @Column() roomNumber!: string;
+  @Column({nullable:true}) year!: string;
+  @Column({nullable:true}) dormBlock!: string;
+  @Column({nullable:true}) roomNumber!: string;
 }

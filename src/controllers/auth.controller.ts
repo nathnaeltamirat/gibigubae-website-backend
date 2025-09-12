@@ -6,6 +6,8 @@ import jwt from "jsonwebtoken";
 
 import { JWT_EXPIRES_IN, JWT_SECRET } from "../config/env.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
+import { AcademicInfo } from "../entity/AcademicInfo.js";
+import { Department } from "../entity/Department.js";
 interface CustomError extends Error {
   statusCode?: number;
   code?: number;
@@ -30,9 +32,13 @@ export const signUp = async (
       email,
       password,
       gender,
+      departmentName,
       phoneNumber,
     } = req.body;
     const userRepository = AppDataSource.getRepository(Student);
+    const departmentRepository = AppDataSource.getRepository(Department);
+    const academicInfoRepository = AppDataSource.getRepository(AcademicInfo);
+
     const existingUser = await userRepository.findOne({
       where: [{ email }, { phoneNumber }],
     });
@@ -45,6 +51,7 @@ export const signUp = async (
     const hashedPassword = await bcrypt.hash(password, salt);
     const requiredFields = [
       "firstName",
+      "departmentName",
       "fatherName",
       "grandFatherName",
       "christianName",
@@ -59,6 +66,14 @@ export const signUp = async (
       idCardImagePath = await uploadToCloudinary(req.file, "student_ids");
     } else {
       const error: CustomError = new Error("ID card image is required");
+      error.statusCode = 400;
+      throw error;
+    }
+    let department = await departmentRepository.findOne({
+      where: { departmentName },
+    });
+    if (!department) {
+      const error: CustomError = new Error("Department is required");
       error.statusCode = 400;
       throw error;
     }
@@ -92,6 +107,11 @@ export const signUp = async (
     }
 
     await userRepository.save(newStudent);
+    const academicInfo = academicInfoRepository.create({
+      user: newStudent,
+      department,
+    });
+    await academicInfoRepository.save(academicInfo);
     const token = jwt.sign(
       { userId: newStudent.id, email: newStudent.email, role: newStudent.role },
       JWT_SECRET as string,
