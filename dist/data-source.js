@@ -60,7 +60,7 @@ export const AppDataSource = new DataSource(isProduction
             AcademicInfo,
         ],
         subscribers: [],
-        migrations: ["src/migration/**/*.ts"],
+        migrations: ["src/migration/**/*.js"],
         migrationsTableName: "migrations",
     });
 //# sourceMappingURL=data-source.js.map

@@ -73,7 +73,7 @@ export const AppDataSource = new DataSource(
           AcademicInfo,
         ],
         subscribers: [],
-        migrations: ["src/migration/**/*.ts"],
+        migrations: ["src/migration/**/*.js"],
         migrationsTableName: "migrations",
       }
 );
