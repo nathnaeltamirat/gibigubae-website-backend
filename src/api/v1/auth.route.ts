@@ -62,11 +62,17 @@
  *           schema:
  *             type: object
  *             properties:
+ *               password:
+ *                 type: string
+ *             required:
+ *               - password
+ *             oneOf:
+ *               - required: [email]
+ *               - required: [phoneNumber]
+ *             properties:
  *               email:
  *                 type: string
  *               phoneNumber:
- *                 type: string
- *               password:
  *                 type: string
  *     responses:
  *       201:
