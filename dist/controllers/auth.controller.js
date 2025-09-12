@@ -100,7 +100,7 @@ export const signUp = async (req, res, next) => {
 };
 export const signIn = async (req, res, next) => {
     try {
-        const { email, phoneNumber, password } = req.body;
+        const { phoneOrEmail, password } = req.body;
         const userRepository = AppDataSource.getRepository(Student);
         if (!req.body.email && !req.body.phoneNumber) {
             const error = new Error("Either email or phoneNumber is required");
@@ -108,7 +108,10 @@ export const signIn = async (req, res, next) => {
             throw error;
         }
         const existingUser = await userRepository.findOne({
-            where: [{ email }, { phoneNumber }],
+            where: [
+                { email: phoneOrEmail },
+                { phoneNumber: phoneOrEmail }
+            ],
         });
         if (!existingUser) {
             const error = new Error("User doesn't exists");

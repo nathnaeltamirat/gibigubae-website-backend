@@ -140,7 +140,7 @@ export const signIn = async (
   next: NextFunction
 ) => {
   try {
-    const { email, phoneNumber, password } = req.body;
+    const {  phoneOrEmail, password } = req.body;
     const userRepository = AppDataSource.getRepository(Student);
     if (!req.body.email && !req.body.phoneNumber) {
       const error: CustomError = new Error(
@@ -150,7 +150,10 @@ export const signIn = async (
       throw error;
     }
     const existingUser = await userRepository.findOne({
-      where: [{ email }, { phoneNumber }],
+      where: [
+        { email: phoneOrEmail },
+        { phoneNumber: phoneOrEmail }
+      ],
     });
     if (!existingUser) {
       const error: CustomError = new Error("User doesn't exists");
