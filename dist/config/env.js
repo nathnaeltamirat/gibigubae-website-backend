@@ -1,5 +1,5 @@
 import { config } from 'dotenv';
-config({ path: `.env.${process.env.NODE_ENV || 'development'}.local` });
+config({});
 const getEnvVar = (name) => {
     const value = process.env[name];
     if (!value) {
