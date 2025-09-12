@@ -9,6 +9,7 @@ import {
   DB_USERNAME,
   NODE_ENV,
 } from "./config/env.js";
+
 import { Student } from "./entity/Student.js";
 import { ConfessionFather } from "./entity/ConfessionFather.js";
 import { Department } from "./entity/Department.js";
@@ -25,7 +26,7 @@ const isProduction = NODE_ENV === "production";
 const dataSourceOptions: DataSourceOptions = isProduction
   ? {
       type: "postgres",
-      url: DATABASE_URL!,
+      url: DATABASE_URL,
       ssl: { rejectUnauthorized: false },
       synchronize: false,
       logging: true,
@@ -47,11 +48,11 @@ const dataSourceOptions: DataSourceOptions = isProduction
     }
   : {
       type: "postgres",
-      host: DB_HOST || "127.0.0.1",
-      port: Number(DB_PORT) || 5432,
-      username: DB_USERNAME || "postgres",
-      password: DB_PASSWORD || "",
-      database: DB_NAME || "aastu_gibi_gubae",
+      host: DB_HOST,
+      port: DB_PORT,
+      username: DB_USERNAME,
+      password: DB_PASSWORD,
+      database: DB_NAME,
       ssl: false,
       synchronize: false,
       logging: true,
@@ -68,7 +69,7 @@ const dataSourceOptions: DataSourceOptions = isProduction
         AcademicInfo,
       ],
       subscribers: [],
-      migrations: ["src/migration/**/*.ts"],
+      migrations: ["src/migration/**/*.js"],
       migrationsTableName: "migrations",
     };
 
