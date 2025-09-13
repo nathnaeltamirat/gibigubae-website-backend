@@ -1,6 +1,6 @@
 import { Router } from "express";
 import multer from "multer";
-import { signIn, signUp } from "../controllers/auth.controller.js";
+import { logout, refreshToken, signIn, signUp } from "../controllers/auth.controller.js";
 const authRouter = Router();
 const upload = multer({
     storage: multer.memoryStorage(),
@@ -8,5 +8,7 @@ const upload = multer({
 });
 authRouter.post("/sign-up", upload.single("id_card"), signUp);
 authRouter.post("/sign-in", signIn);
+authRouter.post("/refresh-token", refreshToken);
+authRouter.post("/logout", logout);
 export default authRouter;
 //# sourceMappingURL=auth.route.js.map
