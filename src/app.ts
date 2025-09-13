@@ -6,6 +6,7 @@ import authRouter from "./routes/auth.route.js";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import swaggerOptions from "./config/swagger.js";
+import studentRouter from "./routes/student.route.js";
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use("/api/v1", authRouter);
+app.use("/api/v1", studentRouter);
 app.use(errorMiddleware);
 
 export default app;
