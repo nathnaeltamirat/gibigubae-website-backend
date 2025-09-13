@@ -1,0 +1,159 @@
+import { AppDataSource } from "../data-source.js";
+import { student } from "../entity/Student.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { JWT_EXPIRES_IN, JWT_SECRET } from "../config/env.js";
+import { uploadToCloudinary } from "../utils/cloudinary.js";
+import { academic_info } from "../entity/AcademicInfo.js";
+import { department } from "../entity/Department.js";
+export const signUp = async (req, res, next) => {
+    try {
+        const { first_name, father_name, grand_father_name, christian_name, email, password, gender, department_name, phone_number, } = req.body;
+        const userRepository = AppDataSource.getRepository(student);
+        const departmentRepository = AppDataSource.getRepository(department);
+        const academicInfoRepository = AppDataSource.getRepository(academic_info);
+        const existingUser = await userRepository.findOne({
+            where: [{ email }, { phone_number }],
+        });
+        if (existingUser) {
+            const error = new Error("User already exists");
+            error.statusCode = 500;
+            throw error;
+        }
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+        const requiredFields = [
+            "first_name",
+            "department_name",
+            "father_name",
+            "grand_father_name",
+            "christian_name",
+            "email",
+            "password",
+            "gender",
+            "phone_number",
+        ];
+        for (const field of requiredFields) {
+            if (!req.body[field]) {
+                const error = new Error(`Missing required field: ${field}`);
+                error.statusCode = 400;
+                throw error;
+            }
+        }
+        if (!req.file) {
+            const error = new Error("ID card image is required");
+            error.statusCode = 400;
+            throw error;
+        }
+        const id_card_image_path = await uploadToCloudinary(req.file, "id_card");
+        const existing_department = await departmentRepository.findOne({
+            where: { department_name },
+        });
+        if (!existing_department) {
+            const error = new Error("Department is required");
+            error.statusCode = 400;
+            throw error;
+        }
+        const newStudent = userRepository.create({
+            first_name,
+            father_name,
+            grand_father_name,
+            christian_name,
+            email,
+            password: hashedPassword,
+            gender,
+            phone_number,
+            id_card_image_path,
+        });
+        await userRepository.save(newStudent);
+        const newAcademicInfo = academicInfoRepository.create({
+            user: newStudent,
+            department: existing_department,
+        });
+        await academicInfoRepository.save(newAcademicInfo);
+        if (!JWT_SECRET) {
+            const error = new Error("JWT_SECRET is not defined in environment variables");
+            error.statusCode = 500;
+            throw error;
+        }
+        const token = jwt.sign({
+            user_id: newStudent.id,
+            email: newStudent.email,
+            role: newStudent.role,
+        }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+        res.status(201).json({
+            success: true,
+            data: {
+                token,
+                user: {
+                    id: newStudent.id,
+                    first_name: newStudent.first_name,
+                    email: newStudent.email,
+                    role: newStudent.role,
+                },
+            },
+        });
+    }
+    catch (err) {
+        next(err);
+    }
+};
+export const signIn = async (req, res, next) => {
+    try {
+        const { phone_or_email, password } = req.body;
+        const userRepository = AppDataSource.getRepository(student);
+        if (!phone_or_email) {
+            const error = new Error("Either email or phoneNumber is required");
+            error.statusCode = 400;
+            throw error;
+        }
+        const existingUser = await userRepository.findOne({
+            where: [
+                { email: phone_or_email },
+                { phone_number: phone_or_email },
+            ],
+        });
+        if (!existingUser) {
+            const error = new Error("User doesn't exist");
+            error.statusCode = 404;
+            throw error;
+        }
+        if (!password) {
+            const error = new Error("Password is required");
+            error.statusCode = 400;
+            throw error;
+        }
+        const isMatch = await bcrypt.compare(password, existingUser.password);
+        if (!isMatch) {
+            const error = new Error("Invalid credentials");
+            error.statusCode = 401;
+            throw error;
+        }
+        if (!JWT_SECRET) {
+            const error = new Error("JWT_SECRET is not defined in environment variables");
+            error.statusCode = 500;
+            throw error;
+        }
+        const token = jwt.sign({
+            user_id: existingUser.id,
+            email: existingUser.email,
+            role: existingUser.role,
+        }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+        res.status(201).json({
+            success: true,
+            data: {
+                token,
+                user: {
+                    id: existingUser.id,
+                    first_name: existingUser.first_name,
+                    email: existingUser.email,
+                    role: existingUser.role,
+                },
+            },
+        });
+    }
+    catch (err) {
+        next(err);
+    }
+};
+//# sourceMappingURL=auth.controller.js.map

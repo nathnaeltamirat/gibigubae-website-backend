@@ -1,0 +1,1 @@
+{"version":3,"file":"UserLanguage.d.ts","sourceRoot":"","sources":["../../src/entity/UserLanguage.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,OAAO,EAAE,MAAM,cAAc,CAAC;AACvC,OAAO,EAAE,QAAQ,EAAE,MAAM,eAAe,CAAC;AAEzC,qBACa,aAAa;IAExB,OAAO,EAAG,MAAM,CAAC;IAGjB,WAAW,EAAG,MAAM,CAAC;IAGrB,OAAO,EAAG,OAAO,CAAC;IAGlB,QAAQ,EAAG,QAAQ,CAAC;CACrB"}

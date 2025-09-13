@@ -1,0 +1,1 @@
+{"version":3,"file":"ServiceGroup.d.ts","sourceRoot":"","sources":["../../src/entity/ServiceGroup.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,OAAO,EAAE,MAAM,cAAc,CAAC;AAEvC,qBACa,aAAa;IAExB,EAAE,EAAG,MAAM,CAAC;IAEF,YAAY,EAAG,MAAM,CAAC;IAChB,WAAW,EAAG,MAAM,CAAC;IAGrC,SAAS,EAAG,OAAO,CAAC;IAGpB,cAAc,EAAG,OAAO,CAAC;IAGzB,SAAS,EAAG,OAAO,CAAC;CACrB"}
