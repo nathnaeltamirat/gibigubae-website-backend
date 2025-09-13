@@ -18,24 +18,24 @@
  *           schema:
  *             type: object
  *             required:
- *               - firstName
- *               - fatherName
- *               - grandFatherName
- *               - christianName
+ *               - first_name
+ *               - father_name
+ *               - grand_father_name
+ *               - christian_name
  *               - email
  *               - password
  *               - gender
- *               - departmentName
- *               - phoneNumber
- *               - idCard
+ *               - department_name
+ *               - phone_number
+ *               - id_card
  *             properties:
- *               firstName:
+ *               first_name:
  *                 type: string
- *               fatherName:
+ *               father_name:
  *                 type: string
- *               grandFatherName:
+ *               grand_father_name:
  *                 type: string
- *               christianName:
+ *               christian_name:
  *                 type: string
  *               email:
  *                 type: string
@@ -44,11 +44,11 @@
  *               gender:
  *                 type: string
  *                 enum: [male, female]
- *               departmentName:
+ *               department_name:
  *                 type: string
- *               phoneNumber:
+ *               phone_number:
  *                 type: string
- *               idCard:
+ *               id_card:
  *                 type: string
  *                 format: binary
  *     responses:
@@ -73,9 +73,9 @@
  *           schema:
  *             type: object
  *             properties:
- *               phoneOrEmail:
+ *               phone_or_email:
  *                 type: string
- *                 description: User phone number (either email or phoneNumber required)
+ *                 description: User phone number or email (either required)
  *               password:
  *                 type: string
  *                 description: User password
@@ -83,7 +83,7 @@
  *               - password
  *             oneOf:
  *               - required: [email]
- *               - required: [phoneNumber]
+ *               - required: [phone_number]
  *     responses:
  *       201:
  *         description: Login successful

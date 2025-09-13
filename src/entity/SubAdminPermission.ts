@@ -1,14 +1,14 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from "typeorm";
-import { Student } from "./Student.js";
+import { student } from "./Student.js";
 
 @Entity()
-export class SubAdminPermission {
+export class sub_admin_permission {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @OneToOne(() => Student)
+  @OneToOne(() => student)
   @JoinColumn()
-  user!: Student;
+  user!: student;
 
   @Column("json")
   permissions!: object;

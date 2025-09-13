@@ -1,20 +1,20 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, ManyToOne } from "typeorm";
-import { Student } from "./Student.js";
-import { Department } from "./Department.js";
+import {  student } from "./Student.js";
+import { department } from "./Department.js";
 
 @Entity()
-export class AcademicInfo {
+export class academic_info {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @OneToOne(() => Student)
+  @OneToOne(() => student)
   @JoinColumn()
-  user!: Student;
+  user!: student;
 
-  @ManyToOne(() => Department)
-  department!: Department;
+  @ManyToOne(() => department)
+  department!: department;
 
   @Column({nullable:true}) year!: string;
-  @Column({nullable:true}) dormBlock!: string;
-  @Column({nullable:true}) roomNumber!: string;
+  @Column({nullable:true}) dorm_block!: string;
+  @Column({nullable:true}) room_number!: string;
 }

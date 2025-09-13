@@ -1,20 +1,20 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
-import { Student } from "./Student.js";
+import { student } from "./Student.js";
 
 @Entity()
-export class ServiceGroup {
+export class service_group {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column() serviceName!: string;
+  @Column() service_name!: string;
   @Column("text") description!: string;
 
-  @ManyToOne(() => Student)
-  president!: Student;
+  @ManyToOne(() => student)
+  president!: student;
 
-  @ManyToOne(() => Student)
-  vicePresident!: Student;
+  @ManyToOne(() => student)
+  vice_president!: student;
 
-  @ManyToOne(() => Student)
-  secretary!: Student;
+  @ManyToOne(() => student)
+  secretary!: student;
 }

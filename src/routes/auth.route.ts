@@ -10,7 +10,7 @@ const upload = multer({
   limits: { fileSize: 3 * 1024 * 1024 }, 
 });
 
-authRouter.post("/sign-up", upload.single("idCard"), signUp);
+authRouter.post("/sign-up", upload.single("id_card"), signUp);
 authRouter.post("/sign-in",signIn)
 
 export default authRouter;
