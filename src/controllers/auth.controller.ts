@@ -41,18 +41,6 @@ export const signUp = async (
     const departmentRepository = AppDataSource.getRepository(department);
     const academicInfoRepository = AppDataSource.getRepository(academic_info);
 
-    const existingUser = await userRepository.findOne({
-      where: [{ email }, { phone_number }],
-    });
-    if (existingUser) {
-      const error: CustomError = new Error("User already exists");
-      error.statusCode = 500;
-      throw error;
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
     const requiredFields = [
       "first_name",
       "department_name",
@@ -74,6 +62,18 @@ export const signUp = async (
         throw error;
       }
     }
+    const formatted_email = email.toLowerCase();
+    const existingUser = await userRepository.findOne({
+      where: [{ email: formatted_email }, { phone_number }],
+    });
+    if (existingUser) {
+      const error: CustomError = new Error("User already exists");
+      error.statusCode = 500;
+      throw error;
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     if (!req.file) {
       const error: CustomError = new Error("ID card image is required");
@@ -97,7 +97,7 @@ export const signUp = async (
       father_name,
       grand_father_name,
       christian_name,
-      email,
+      email: formatted_email,
       password: hashedPassword,
       gender,
       phone_number,
@@ -105,7 +105,6 @@ export const signUp = async (
     });
 
     await userRepository.save(newStudent);
-
 
     const newAcademicInfo = academicInfoRepository.create({
       user: newStudent,
@@ -156,32 +155,26 @@ export const signIn = async (
   try {
     const { phone_or_email, password } = req.body;
 
-    const userRepository = AppDataSource.getRepository(student);
-
-    if (!phone_or_email) {
-      const error: CustomError = new Error(
-        "Either email or phoneNumber is required"
-      );
+    if (!phone_or_email || !password) {
+      const error: CustomError = new Error("Missing fields");
       error.statusCode = 400;
       throw error;
     }
 
+    const userRepository = AppDataSource.getRepository(student);
+
+    // Convert email to lowercase if it looks like an email
+    const formattedInput = phone_or_email.includes("@")
+      ? phone_or_email.toLowerCase()
+      : phone_or_email;
+
     const existingUser = await userRepository.findOne({
-      where: [
-        { email: phone_or_email },
-        { phone_number: phone_or_email },
-      ],
+      where: [{ email: formattedInput }, { phone_number: formattedInput }],
     });
 
     if (!existingUser) {
       const error: CustomError = new Error("User doesn't exist");
       error.statusCode = 404;
-      throw error;
-    }
-
-    if (!password) {
-      const error: CustomError = new Error("Password is required");
-      error.statusCode = 400;
       throw error;
     }
 
@@ -207,7 +200,7 @@ export const signIn = async (
         role: existingUser.role,
       },
       JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN }as jwt.SignOptions
+      { expiresIn: JWT_EXPIRES_IN } as jwt.SignOptions
     );
 
     res.status(201).json({
