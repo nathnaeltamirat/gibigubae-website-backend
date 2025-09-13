@@ -53,7 +53,28 @@ export {};
  *                 format: binary
  *     responses:
  *       201:
- *         description: Student created successfully
+ *         description: Student created successfully. Sets auth_token (1d) and refresh_token (7d) as HTTP-only cookies.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         first_name:
+ *                           type: string
+ *                         email:
+ *                           type: string
+ *                         role:
+ *                           type: string
  *       400:
  *         description: Missing required fields
  *       500:
@@ -71,26 +92,85 @@ export {};
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - phone_or_email
+ *               - password
  *             properties:
  *               phone_or_email:
  *                 type: string
- *                 description: User phone number or email (either required)
+ *                 description: User phone number or email
  *               password:
  *                 type: string
  *                 description: User password
- *             required:
- *               - password
- *             oneOf:
- *               - required: [email]
- *               - required: [phone_number]
  *     responses:
- *       201:
- *         description: Login successful
+ *       200:
+ *         description: Login successful. Sets auth_token (1d) and refresh_token (7d) as HTTP-only cookies.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         first_name:
+ *                           type: string
+ *                         email:
+ *                           type: string
+ *                         role:
+ *                           type: string
  *       400:
  *         description: Missing required fields
  *       401:
  *         description: Invalid credentials
  *       500:
  *         description: Internal server error
+ */
+/**
+ * @swagger
+ * /refresh-token:
+ *   post:
+ *     summary: Refresh access token using refresh token cookie
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Token refreshed successfully. New auth_token (1d) cookie is set.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       401:
+ *         description: Refresh token missing or invalid
+ */
+/**
+ * @swagger
+ * /logout:
+ *   post:
+ *     summary: Logout user
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Clears auth_token and refresh_token cookies
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
  */
 //# sourceMappingURL=auth.route.d.ts.map

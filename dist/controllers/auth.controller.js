@@ -2,7 +2,7 @@ import { AppDataSource } from "../data-source.js";
 import { student } from "../entity/Student.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { JWT_EXPIRES_IN, JWT_SECRET } from "../config/env.js";
+import { JWT_EXPIRES_IN, JWT_REFRESH_EXPIRES_IN, JWT_REFRESH_SECRET, JWT_SECRET, } from "../config/env.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
 import { academic_info } from "../entity/AcademicInfo.js";
 import { department } from "../entity/Department.js";
@@ -82,10 +82,27 @@ export const signUp = async (req, res, next) => {
             email: newStudent.email,
             role: newStudent.role,
         }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+        const refreshToken = jwt.sign({
+            user_id: newStudent.id,
+            email: newStudent.email,
+            role: newStudent.role,
+        }, JWT_REFRESH_SECRET, { expiresIn: JWT_REFRESH_EXPIRES_IN });
+        // Set access token (1 day)
+        res.cookie("auth_token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 1000 * 60 * 60 * 24,
+        });
+        res.cookie("refresh_token", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 1000 * 60 * 60 * 24 * 7,
+        });
         res.status(201).json({
             success: true,
             data: {
-                token,
                 user: {
                     id: newStudent.id,
                     first_name: newStudent.first_name,
@@ -108,7 +125,6 @@ export const signIn = async (req, res, next) => {
             throw error;
         }
         const userRepository = AppDataSource.getRepository(student);
-        // Convert email to lowercase if it looks like an email
         const formattedInput = phone_or_email.includes("@")
             ? phone_or_email.toLowerCase()
             : phone_or_email;
@@ -136,10 +152,26 @@ export const signIn = async (req, res, next) => {
             email: existingUser.email,
             role: existingUser.role,
         }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-        res.status(201).json({
+        const refreshToken = jwt.sign({
+            user_id: existingUser.id,
+            email: existingUser.email,
+            role: existingUser.role,
+        }, JWT_REFRESH_SECRET, { expiresIn: JWT_REFRESH_EXPIRES_IN });
+        res.cookie("auth_token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 1000 * 60 * 60 * 24,
+        });
+        res.cookie("refresh_token", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 1000 * 60 * 60 * 24 * 7,
+        });
+        res.status(200).json({
             success: true,
             data: {
-                token,
                 user: {
                     id: existingUser.id,
                     first_name: existingUser.first_name,
@@ -151,6 +183,30 @@ export const signIn = async (req, res, next) => {
     }
     catch (err) {
         next(err);
+    }
+};
+export const logout = (req, res) => {
+    res.clearCookie("auth_token");
+    res.clearCookie("refresh_token");
+    res.json({ success: true, message: "Logged out successfully" });
+};
+export const refreshToken = (req, res) => {
+    const refreshToken = req.cookies?.refresh_token;
+    if (!refreshToken)
+        return res.status(401).json({ message: "Unauthorized" });
+    try {
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+        const newToken = jwt.sign({ user_id: decoded.user_id, email: decoded.email, role: decoded.role }, process.env.JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+        res.cookie("auth_token", newToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 1000 * 60 * 60 * 24,
+        });
+        res.json({ success: true, message: "Token refreshed" });
+    }
+    catch (err) {
+        return res.status(401).json({ message: "Invalid refresh token" });
     }
 };
 //# sourceMappingURL=auth.controller.js.map
