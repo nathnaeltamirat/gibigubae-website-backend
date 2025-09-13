@@ -7,7 +7,7 @@ const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 3 * 1024 * 1024 }, // 3 MB
 });
-studentRouter.get("/students/me", authenticate, getOwnProfile);
-studentRouter.put("/students/me", authenticate, upload.single("id_card"), updateOwnProfile);
+studentRouter.get("/", authenticate, getOwnProfile);
+studentRouter.put("/", authenticate, upload.single("id_card"), updateOwnProfile);
 export default studentRouter;
 //# sourceMappingURL=student.route.js.map
