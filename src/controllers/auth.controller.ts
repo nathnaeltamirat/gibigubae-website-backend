@@ -1,13 +1,14 @@
 import type { Request, Response, NextFunction } from "express";
 import { AppDataSource } from "../data-source.js";
-import { Student } from "../entity/Student.js";
+import { student } from "../entity/Student.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 import { JWT_EXPIRES_IN, JWT_SECRET } from "../config/env.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
-import { AcademicInfo } from "../entity/AcademicInfo.js";
-import { Department } from "../entity/Department.js";
+import { academic_info } from "../entity/AcademicInfo.js";
+import { department } from "../entity/Department.js";
+
 interface CustomError extends Error {
   statusCode?: number;
   code?: number;
@@ -15,7 +16,7 @@ interface CustomError extends Error {
 }
 
 export interface MulterRequest extends Request {
-  file?: Express.Multer.File | undefined; // make it optional
+  file?: Express.Multer.File | undefined;
 }
 
 export const signUp = async (
@@ -25,69 +26,44 @@ export const signUp = async (
 ) => {
   try {
     const {
-      firstName,
-      fatherName,
-      grandFatherName,
-      christianName,
+      first_name,
+      father_name,
+      grand_father_name,
+      christian_name,
       email,
       password,
       gender,
-      departmentName,
-      phoneNumber,
+      department_name,
+      phone_number,
     } = req.body;
-    const userRepository = AppDataSource.getRepository(Student);
-    const departmentRepository = AppDataSource.getRepository(Department);
-    const academicInfoRepository = AppDataSource.getRepository(AcademicInfo);
+
+    const userRepository = AppDataSource.getRepository(student);
+    const departmentRepository = AppDataSource.getRepository(department);
+    const academicInfoRepository = AppDataSource.getRepository(academic_info);
 
     const existingUser = await userRepository.findOne({
-      where: [{ email }, { phoneNumber }],
+      where: [{ email }, { phone_number }],
     });
     if (existingUser) {
       const error: CustomError = new Error("User already exists");
       error.statusCode = 500;
       throw error;
     }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
+
     const requiredFields = [
-      "firstName",
-      "departmentName",
-      "fatherName",
-      "grandFatherName",
-      "christianName",
+      "first_name",
+      "department_name",
+      "father_name",
+      "grand_father_name",
+      "christian_name",
       "email",
       "password",
       "gender",
-      "phoneNumber",
+      "phone_number",
     ] as const;
-
-    let idCardImagePath = null;
-    if (req.file) {
-      idCardImagePath = await uploadToCloudinary(req.file, "student_ids");
-    } else {
-      const error: CustomError = new Error("ID card image is required");
-      error.statusCode = 400;
-      throw error;
-    }
-    let department = await departmentRepository.findOne({
-      where: { departmentName },
-    });
-    if (!department) {
-      const error: CustomError = new Error("Department is required");
-      error.statusCode = 400;
-      throw error;
-    }
-    const newStudent = userRepository.create({
-      firstName,
-      fatherName,
-      grandFatherName,
-      christianName,
-      email,
-      password: hashedPassword,
-      gender,
-      phoneNumber,
-      idCardImagePath,
-    });
 
     for (const field of requiredFields) {
       if (!req.body[field]) {
@@ -98,6 +74,45 @@ export const signUp = async (
         throw error;
       }
     }
+
+    if (!req.file) {
+      const error: CustomError = new Error("ID card image is required");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const id_card_image_path = await uploadToCloudinary(req.file, "id_card");
+
+    const existing_department = await departmentRepository.findOne({
+      where: { department_name },
+    });
+    if (!existing_department) {
+      const error: CustomError = new Error("Department is required");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const newStudent = userRepository.create({
+      first_name,
+      father_name,
+      grand_father_name,
+      christian_name,
+      email,
+      password: hashedPassword,
+      gender,
+      phone_number,
+      id_card_image_path,
+    });
+
+    await userRepository.save(newStudent);
+
+
+    const newAcademicInfo = academicInfoRepository.create({
+      user: newStudent,
+      department: existing_department,
+    });
+    await academicInfoRepository.save(newAcademicInfo);
+
     if (!JWT_SECRET) {
       const error: CustomError = new Error(
         "JWT_SECRET is not defined in environment variables"
@@ -106,26 +121,24 @@ export const signUp = async (
       throw error;
     }
 
-    await userRepository.save(newStudent);
-    const academicInfo = academicInfoRepository.create({
-      user: newStudent,
-      department,
-    });
-    await academicInfoRepository.save(academicInfo);
     const token = jwt.sign(
-      { userId: newStudent.id, email: newStudent.email, role: newStudent.role },
-      JWT_SECRET as string,
+      {
+        user_id: newStudent.id,
+        email: newStudent.email,
+        role: newStudent.role,
+      },
+      JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN } as jwt.SignOptions
     );
+
     res.status(201).json({
       success: true,
       data: {
         token,
         user: {
           id: newStudent.id,
-          firstName: newStudent.firstName,
+          first_name: newStudent.first_name,
           email: newStudent.email,
-          barcode: newStudent.barcode,
           role: newStudent.role,
         },
       },
@@ -134,32 +147,38 @@ export const signUp = async (
     next(err);
   }
 };
+
 export const signIn = async (
   req: MulterRequest,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const {  phoneOrEmail, password } = req.body;
-    const userRepository = AppDataSource.getRepository(Student);
-    if (!req.body.email && !req.body.phoneNumber) {
+    const { phone_or_email, password } = req.body;
+
+    const userRepository = AppDataSource.getRepository(student);
+
+    if (!phone_or_email) {
       const error: CustomError = new Error(
         "Either email or phoneNumber is required"
       );
       error.statusCode = 400;
       throw error;
     }
+
     const existingUser = await userRepository.findOne({
       where: [
-        { email: phoneOrEmail },
-        { phoneNumber: phoneOrEmail }
+        { email: phone_or_email },
+        { phone_number: phone_or_email },
       ],
     });
+
     if (!existingUser) {
-      const error: CustomError = new Error("User doesn't exists");
-      error.statusCode = 500;
+      const error: CustomError = new Error("User doesn't exist");
+      error.statusCode = 404;
       throw error;
     }
+
     if (!password) {
       const error: CustomError = new Error("Password is required");
       error.statusCode = 400;
@@ -180,22 +199,24 @@ export const signIn = async (
       error.statusCode = 500;
       throw error;
     }
+
     const token = jwt.sign(
       {
-        userId: existingUser.id,
+        user_id: existingUser.id,
         email: existingUser.email,
         role: existingUser.role,
       },
-      JWT_SECRET as string,
-      { expiresIn: JWT_EXPIRES_IN } as jwt.SignOptions
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }as jwt.SignOptions
     );
+
     res.status(201).json({
       success: true,
       data: {
         token,
         user: {
           id: existingUser.id,
-          firstName: existingUser.firstName,
+          first_name: existingUser.first_name,
           email: existingUser.email,
           role: existingUser.role,
         },

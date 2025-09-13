@@ -9,16 +9,16 @@ import {
   DB_SSL,
   NODE_ENV,
 } from "./config/env.js";
-import { Student } from "./entity/Student.js";
-import { ConfessionFather } from "./entity/ConfessionFather.js";
-import { Department } from "./entity/Department.js";
-import { Language } from "./entity/Language.js";
-import { ServiceGroup } from "./entity/ServiceGroup.js";
-import { ServiceMember } from "./entity/ServiceMember.js";
-import { ServiceSubGroup } from "./entity/ServiceSubGroup.js";
-import { SubAdminPermission } from "./entity/SubAdminPermission.js";
-import { UserLanguage } from "./entity/UserLanguage.js";
-import { AcademicInfo } from "./entity/AcademicInfo.js";
+import { student } from "./entity/Student.js";
+import { confession_father } from "./entity/ConfessionFather.js";
+import { department } from "./entity/Department.js";
+import { language } from "./entity/Language.js";
+import { service_group } from "./entity/ServiceGroup.js";
+import { service_member } from "./entity/ServiceMember.js";
+import { service_sub_group} from "./entity/ServiceSubGroup.js";
+import { sub_admin_permission } from "./entity/SubAdminPermission.js";
+import { user_language } from "./entity/UserLanguage.js";
+import { academic_info } from "./entity/AcademicInfo.js";
 
 const isProduction = NODE_ENV === "production";
 
@@ -35,16 +35,16 @@ export const AppDataSource = new DataSource(
         synchronize: false,
         logging: true,
         entities: [
-          Student,
-          ConfessionFather,
-          Department,
-          Language,
-          ServiceGroup,
-          ServiceMember,
-          ServiceSubGroup,
-          SubAdminPermission,
-          UserLanguage,
-          AcademicInfo,
+          student,
+          confession_father,
+          department,
+          language,
+          service_group,
+          service_member,
+          service_sub_group,
+          sub_admin_permission,
+          user_language,
+          academic_info,
         ],
         subscribers: [],
         migrations: ["dist/migration/**/*.js"],
@@ -61,16 +61,16 @@ export const AppDataSource = new DataSource(
         synchronize: false,
         logging: true,
         entities: [
-          Student,
-          ConfessionFather,
-          Department,
-          Language,
-          ServiceGroup,
-          ServiceMember,
-          ServiceSubGroup,
-          SubAdminPermission,
-          UserLanguage,
-          AcademicInfo,
+          student,
+          confession_father,
+          department,
+          language,
+          service_group,
+          service_member,
+          service_sub_group,
+          sub_admin_permission,
+          user_language,
+          academic_info,
         ],
         subscribers: [],
         migrations: ["src/migration/**/*.js"],

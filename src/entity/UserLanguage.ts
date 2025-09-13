@@ -1,18 +1,18 @@
 import { Entity, PrimaryColumn, ManyToOne } from "typeorm";
-import { Student } from "./Student.js";
-import { Language } from "./Language.js";
+import { student } from "./Student.js";
+import { language } from "./Language.js";
 
 @Entity()
-export class UserLanguage {
+export class user_language {
   @PrimaryColumn()
   user_id!: number;
 
   @PrimaryColumn()
   language_id!: number;
 
-  @ManyToOne(() => Student)
-  student!: Student;
+  @ManyToOne(() => student)
+  student!: student;
 
-  @ManyToOne(() => Language)
-  language!: Language;
+  @ManyToOne(() => language)
+  language!: language;
 }

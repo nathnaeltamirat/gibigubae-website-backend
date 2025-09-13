@@ -1,25 +1,25 @@
 import { Entity, PrimaryColumn, Column, ManyToOne } from "typeorm";
-import { Student } from "./Student.js";
-import { ServiceGroup } from "./ServiceGroup.js";
-import { ServiceSubGroup } from "./ServiceSubGroup.js";
+import {  student } from "./Student.js";
+import { service_group } from "./ServiceGroup.js";
+import { service_sub_group } from "./ServiceSubGroup.js";
 
 @Entity()
-export class ServiceMember {
+export class service_member {
   @PrimaryColumn()
   user_id!: number;
 
   @PrimaryColumn()
   serviceGroup!: number;
 
-  @ManyToOne(() => Student)
-  student!: Student;
+  @ManyToOne(() => student)
+  student!: student;
 
-  @ManyToOne(() => ServiceGroup)
-  group!: ServiceGroup;
+  @ManyToOne(() => service_group)
+  group!: service_group;
 
-  @ManyToOne(() => ServiceSubGroup)
-  subGroup!: ServiceSubGroup;
+  @ManyToOne(() => service_sub_group)
+  sub_group!: service_sub_group;
 
   @Column()
-  serviceRole!: string;
+  service_role!: string;
 }
