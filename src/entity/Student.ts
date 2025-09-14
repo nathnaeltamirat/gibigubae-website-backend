@@ -16,7 +16,7 @@ export class student {
   @Column({unique:true}) email!:string;
   @Column() password!:string;
   @Column({ type: "enum", enum: GENDER }) gender!: GENDER;
-  @Column({length:15,name:"phoneNumber"}) phone_number!: string;
+  @Column({length:15,name:"phone_number"}) phone_number!: string;
   @Column() id_card_image_path!: string;
   @Column({nullable:true}) barcode!: string;
   

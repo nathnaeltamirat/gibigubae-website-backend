@@ -11,6 +11,8 @@ import departmentRouter from "./routes/department.route.js";
 import serviceGroupRouter from "./routes/service_group.route.js";
 import subGroupRouter from "./routes/service_sub_group.route.js";
 import serviceMemberRouter from "./routes/service_member.route.js";
+import academicInfoRouter from "./routes/academic_info.route.js";
+import adminRouter from "./routes/admin.route.js";
 const app = express();
 const specs = swaggerJsdoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
@@ -23,6 +25,8 @@ app.use("/api/v1/departments", departmentRouter);
 app.use("/api/v1/service-groups", serviceGroupRouter);
 app.use("/api/v1/service-sub-groups", subGroupRouter);
 app.use("/api/v1/service-members", serviceMemberRouter);
+app.use("/api/v1/academic-info", academicInfoRouter);
+app.use("/api/v1/admin", adminRouter);
 app.use(errorMiddleware);
 export default app;
 //# sourceMappingURL=app.js.map

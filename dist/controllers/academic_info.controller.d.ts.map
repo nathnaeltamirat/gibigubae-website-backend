@@ -1,0 +1,1 @@
+{"version":3,"file":"academic_info.controller.d.ts","sourceRoot":"","sources":["../../src/controllers/academic_info.controller.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,OAAO,EAAE,QAAQ,EAAE,YAAY,EAAE,MAAM,SAAS,CAAC;AAe/D,eAAO,MAAM,uBAAuB,GAClC,KAAK,OAAO,EACZ,KAAK,QAAQ,EACb,MAAM,YAAY,kBAmDnB,CAAC;AAGF,eAAO,MAAM,eAAe,GAC1B,KAAK,OAAO,EACZ,KAAK,QAAQ,EACb,MAAM,YAAY,kBAoBnB,CAAC"}

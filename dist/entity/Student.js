@@ -60,7 +60,7 @@ __decorate([
     __metadata("design:type", String)
 ], student.prototype, "gender", void 0);
 __decorate([
-    Column({ length: 15, name: "phoneNumber" }),
+    Column({ length: 15, name: "phone_number" }),
     __metadata("design:type", String)
 ], student.prototype, "phone_number", void 0);
 __decorate([
