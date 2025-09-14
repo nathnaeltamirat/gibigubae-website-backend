@@ -8,6 +8,9 @@ import swaggerUi from "swagger-ui-express";
 import swaggerOptions from "./config/swagger.js";
 import studentRouter from "./routes/student.route.js";
 import departmentRouter from "./routes/department.route.js";
+import serviceGroupRouter from "./routes/service_group.route.js";
+import subGroupRouter from "./routes/service_sub_group.route.js";
+import serviceMemberRouter from "./routes/service_member.route.js";
 
 const app = express();
 
@@ -21,6 +24,9 @@ app.use(cookieParser());
 app.use("/api/v1", authRouter);
 app.use("/api/v1/students/me", studentRouter);
 app.use("/api/v1/departments", departmentRouter);
+app.use("/api/v1/service-groups",serviceGroupRouter);
+app.use("/api/v1/service-sub-groups",subGroupRouter);
+app.use("/api/v1/service-members",serviceMemberRouter);
 app.use(errorMiddleware);
 
 export default app;
