@@ -13,6 +13,9 @@ import subGroupRouter from "./routes/service_sub_group.route.js";
 import serviceMemberRouter from "./routes/service_member.route.js";
 import academicInfoRouter from "./routes/academic_info.route.js";
 import adminRouter from "./routes/admin.route.js";
+import courseRouter from "./routes/course.route.js";
+import enrollmentRouter from "./routes/enrollment.route.js";
+import attendanceRouter from "./routes/attendance.route.js";
 
 const app = express();
 
@@ -31,6 +34,10 @@ app.use("/api/v1/service-sub-groups",subGroupRouter);
 app.use("/api/v1/service-members",serviceMemberRouter);
 app.use("/api/v1/academic-info", academicInfoRouter);
 app.use("/api/v1/admin", adminRouter);
+app.use("/api/v1/courses", courseRouter);
+app.use("/api/v1/enrollments", enrollmentRouter);
+app.use("/api/v1/attendance", attendanceRouter);
+
 app.use(errorMiddleware);
 
 export default app;

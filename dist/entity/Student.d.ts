@@ -1,5 +1,7 @@
 import { confession_father } from "./ConfessionFather.js";
 import { GENDER, ROLE } from "../types/entity.js";
+import { enrollment } from "./Enrollment.js";
+import { attendance } from "./Attendance.js";
 export declare class student {
     id: number;
     first_name: string;
@@ -16,5 +18,7 @@ export declare class student {
     is_verified: boolean;
     created_at: Date;
     confession_father: confession_father;
+    enrollments: enrollment[];
+    attendances: attendance[];
 }
 //# sourceMappingURL=Student.d.ts.map

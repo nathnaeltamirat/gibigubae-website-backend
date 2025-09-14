@@ -7,9 +7,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, } from "typeorm";
 import { confession_father } from "./ConfessionFather.js";
 import { GENDER, ROLE } from "../types/entity.js";
+import { enrollment } from "./Enrollment.js";
+import { attendance } from "./Attendance.js";
 let student = class student {
     id;
     first_name;
@@ -26,6 +28,8 @@ let student = class student {
     is_verified;
     created_at;
     confession_father;
+    enrollments;
+    attendances;
 };
 __decorate([
     PrimaryGeneratedColumn(),
@@ -80,13 +84,21 @@ __decorate([
     __metadata("design:type", Boolean)
 ], student.prototype, "is_verified", void 0);
 __decorate([
-    Column({ type: 'timestamp', default: () => "CURRENT_TIMESTAMP" }),
+    Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" }),
     __metadata("design:type", Date)
 ], student.prototype, "created_at", void 0);
 __decorate([
-    ManyToOne(() => confession_father, (father) => father.students, { nullable: true, onDelete: 'SET NULL' }),
+    ManyToOne(() => confession_father, (father) => father.students, { nullable: true, onDelete: "SET NULL" }),
     __metadata("design:type", confession_father)
 ], student.prototype, "confession_father", void 0);
+__decorate([
+    OneToMany(() => enrollment, (enroll) => enroll.student),
+    __metadata("design:type", Array)
+], student.prototype, "enrollments", void 0);
+__decorate([
+    OneToMany(() => attendance, (att) => att.student),
+    __metadata("design:type", Array)
+], student.prototype, "attendances", void 0);
 student = __decorate([
     Entity()
 ], student);
