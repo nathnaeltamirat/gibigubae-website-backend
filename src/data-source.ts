@@ -15,10 +15,13 @@ import { department } from "./entity/Department.js";
 import { language } from "./entity/Language.js";
 import { service_group } from "./entity/ServiceGroup.js";
 import { service_member } from "./entity/ServiceMember.js";
-import { service_sub_group} from "./entity/ServiceSubGroup.js";
+import { service_sub_group } from "./entity/ServiceSubGroup.js";
 import { sub_admin_permission } from "./entity/SubAdminPermission.js";
 import { user_language } from "./entity/UserLanguage.js";
 import { academic_info } from "./entity/AcademicInfo.js";
+import { attendance } from "./entity/Attendance.js";
+import { course } from "./entity/Course.js";
+import { enrollment } from "./entity/Enrollment.js";
 
 const isProduction = NODE_ENV === "production";
 
@@ -45,6 +48,9 @@ export const AppDataSource = new DataSource(
           sub_admin_permission,
           user_language,
           academic_info,
+          attendance,
+          course,
+          enrollment
         ],
         subscribers: [],
         migrations: ["dist/migration/**/*.js"],
@@ -71,6 +77,9 @@ export const AppDataSource = new DataSource(
           sub_admin_permission,
           user_language,
           academic_info,
+          attendance,
+          course,
+          enrollment
         ],
         subscribers: [],
         migrations: ["src/migration/**/*.js"],

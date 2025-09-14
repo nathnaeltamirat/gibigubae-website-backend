@@ -10,6 +10,9 @@ import { service_sub_group } from "./entity/ServiceSubGroup.js";
 import { sub_admin_permission } from "./entity/SubAdminPermission.js";
 import { user_language } from "./entity/UserLanguage.js";
 import { academic_info } from "./entity/AcademicInfo.js";
+import { attendance } from "./entity/Attendance.js";
+import { course } from "./entity/Course.js";
+import { enrollment } from "./entity/Enrollment.js";
 const isProduction = NODE_ENV === "production";
 if (isProduction && !DATABASE_URL) {
     throw new Error("DATABASE_URL must be defined in production");
@@ -32,6 +35,9 @@ export const AppDataSource = new DataSource(isProduction
             sub_admin_permission,
             user_language,
             academic_info,
+            attendance,
+            course,
+            enrollment
         ],
         subscribers: [],
         migrations: ["dist/migration/**/*.js"],
@@ -58,6 +64,9 @@ export const AppDataSource = new DataSource(isProduction
             sub_admin_permission,
             user_language,
             academic_info,
+            attendance,
+            course,
+            enrollment
         ],
         subscribers: [],
         migrations: ["src/migration/**/*.js"],
