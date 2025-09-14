@@ -1,7 +1,7 @@
 import app from "./app.js";
 import { PORT, NODE_ENV } from "./config/env.js";
 import { AppDataSource } from "./data-source.js";
-import { seedDepartments } from "./seed.js";
+import { seedDepartments, seedSuperAdmin } from "./seed.js";
 
 const PROD_URL = "https://gibigubae-website-backend.onrender.com/";
 
@@ -10,6 +10,7 @@ app.listen(PORT, async () => {
     await AppDataSource.initialize();
     console.log(`✅ Database connected successfully.`);
     await seedDepartments();
+    await seedSuperAdmin();
     // Run pending migrations automatically
     if (await AppDataSource.showMigrations()) {
       console.log(`🚀 Running pending migrations...`);
