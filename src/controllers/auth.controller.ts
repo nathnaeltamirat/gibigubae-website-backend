@@ -34,9 +34,10 @@ export const signUp = async (
       first_name,
       father_name,
       grand_father_name,
-      christian_name,
+
       email,
       password,
+      id_number,
       gender,
       department_name,
       phone_number,
@@ -51,7 +52,7 @@ export const signUp = async (
       "department_name",
       "father_name",
       "grand_father_name",
-      "christian_name",
+      "id_number",
       "email",
       "password",
       "gender",
@@ -101,7 +102,7 @@ export const signUp = async (
       first_name,
       father_name,
       grand_father_name,
-      christian_name,
+      id_number,
       email: formatted_email,
       password: hashedPassword,
       gender,
@@ -280,7 +281,11 @@ export const refreshToken = (req: Request, res: Response) => {
   try {
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!);
     const newToken = jwt.sign(
-      { user_id: (decoded as any).user_id, email: (decoded as any).email, role: (decoded as any).role },
+      {
+        user_id: (decoded as any).user_id,
+        email: (decoded as any).email,
+        role: (decoded as any).role,
+      },
       process.env.JWT_SECRET!,
       { expiresIn: JWT_EXPIRES_IN } as jwt.SignOptions
     );

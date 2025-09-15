@@ -8,7 +8,7 @@ import { academic_info } from "../entity/AcademicInfo.js";
 import { department } from "../entity/Department.js";
 export const signUp = async (req, res, next) => {
     try {
-        const { first_name, father_name, grand_father_name, christian_name, email, password, gender, department_name, phone_number, } = req.body;
+        const { first_name, father_name, grand_father_name, email, password, id_number, gender, department_name, phone_number, } = req.body;
         const userRepository = AppDataSource.getRepository(student);
         const departmentRepository = AppDataSource.getRepository(department);
         const academicInfoRepository = AppDataSource.getRepository(academic_info);
@@ -17,7 +17,7 @@ export const signUp = async (req, res, next) => {
             "department_name",
             "father_name",
             "grand_father_name",
-            "christian_name",
+            "id_number",
             "email",
             "password",
             "gender",
@@ -59,7 +59,7 @@ export const signUp = async (req, res, next) => {
             first_name,
             father_name,
             grand_father_name,
-            christian_name,
+            id_number,
             email: formatted_email,
             password: hashedPassword,
             gender,
@@ -196,7 +196,11 @@ export const refreshToken = (req, res) => {
         return res.status(401).json({ message: "Unauthorized" });
     try {
         const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-        const newToken = jwt.sign({ user_id: decoded.user_id, email: decoded.email, role: decoded.role }, process.env.JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+        const newToken = jwt.sign({
+            user_id: decoded.user_id,
+            email: decoded.email,
+            role: decoded.role,
+        }, process.env.JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
         res.cookie("auth_token", newToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
