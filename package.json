@@ -26,6 +26,8 @@
 
     "cookie-parser": "^1.4.7",
 
+    "cors": "^2.8.5",
+
     "create-require": "^1.1.1",
 
     "diff": "^4.0.2",
@@ -107,6 +109,8 @@
     "@types/bcrypt": "^6.0.0",
 
     "@types/cookie-parser": "^1.4.9",
+
+    "@types/cors": "^2.8.19",
 
     "@types/dotenv": "^6.1.1",
 

@@ -1,5 +1,6 @@
 import express from "express";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import "reflect-metadata";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import authRouter from "./routes/auth.route.js";
@@ -17,6 +18,7 @@ import courseRouter from "./routes/course.route.js";
 import enrollmentRouter from "./routes/enrollment.route.js";
 import attendanceRouter from "./routes/attendance.route.js";
 const app = express();
+app.use(cors());
 const specs = swaggerJsdoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use(express.json());
