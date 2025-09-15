@@ -21,7 +21,7 @@ export {};
  *               - first_name
  *               - father_name
  *               - grand_father_name
- *               - christian_name
+ *               - id_number
  *               - email
  *               - password
  *               - gender

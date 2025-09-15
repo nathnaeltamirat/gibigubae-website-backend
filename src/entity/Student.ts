@@ -18,7 +18,8 @@ export class student {
   @Column() first_name!: string;
   @Column() father_name!: string;
   @Column() grand_father_name!: string;
-  @Column() christian_name!: string;
+  @Column({nullable:true}) christian_name!: string;
+  @Column() id_number!:string;
   @Column({ unique: true }) email!: string;
   @Column() password!: string;
   @Column({ type: "enum", enum: GENDER }) gender!: GENDER;

@@ -18,6 +18,7 @@ let student = class student {
     father_name;
     grand_father_name;
     christian_name;
+    id_number;
     email;
     password;
     gender;
@@ -48,9 +49,13 @@ __decorate([
     __metadata("design:type", String)
 ], student.prototype, "grand_father_name", void 0);
 __decorate([
-    Column(),
+    Column({ nullable: true }),
     __metadata("design:type", String)
 ], student.prototype, "christian_name", void 0);
+__decorate([
+    Column(),
+    __metadata("design:type", String)
+], student.prototype, "id_number", void 0);
 __decorate([
     Column({ unique: true }),
     __metadata("design:type", String)

@@ -21,7 +21,7 @@
  *               - first_name
  *               - father_name
  *               - grand_father_name
- *               - christian_name
+ *               - id_number
  *               - email
  *               - password
  *               - gender
@@ -35,7 +35,7 @@
  *                 type: string
  *               grand_father_name:
  *                 type: string
- *               christian_name:
+ *               id_number:
  *                 type: string
  *               email:
  *                 type: string

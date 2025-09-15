@@ -8,6 +8,7 @@ export declare class student {
     father_name: string;
     grand_father_name: string;
     christian_name: string;
+    id_number: string;
     email: string;
     password: string;
     gender: GENDER;
