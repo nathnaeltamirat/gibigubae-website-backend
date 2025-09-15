@@ -43,6 +43,7 @@ export const seedSuperAdmin = async () => {
       gender: GENDER.MALE,
       phone_number: "0000000000",
       id_card_image_path: "placeholder.png",
+      id_number:"0000",
       role: ROLE.SUPER_ADMIN,
       is_verified: true,
     });
