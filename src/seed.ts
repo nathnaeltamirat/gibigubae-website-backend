@@ -36,8 +36,7 @@ export const seedSuperAdmin = async () => {
     const superAdmin = studentRepo.create({
       first_name: "Super",
       father_name: "Admin",
-      grand_father_name: "Seed",
-      christian_name: "SuperAdmin",
+      grand_father_name: "code",
       email: "superadmin@example.com",
       password: hashedPassword,
       gender: GENDER.MALE,

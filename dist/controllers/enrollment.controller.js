@@ -5,14 +5,33 @@ import { course } from "../entity/Course.js";
 const enrollmentRepo = AppDataSource.getRepository(enrollment);
 const studentRepo = AppDataSource.getRepository(student);
 const courseRepo = AppDataSource.getRepository(course);
-// Enroll student
-export const enrollStudent = async (req, res, next) => {
+// ------------------------------
+// Student self-enrollment
+// ------------------------------
+export const enrollSelf = async (req, res, next) => {
     try {
-        const { student_id, course_id } = req.body;
-        const studentEntity = await studentRepo.findOneBy({ id: Number(student_id) });
+        const user = req.user; // from authenticator middleware
+        const { course_id } = req.body;
+        const studentEntity = await studentRepo.findOneBy({ id: Number(user.user_id) });
         const courseEntity = await courseRepo.findOneBy({ id: Number(course_id) });
-        if (!studentEntity || !courseEntity)
+        if (!studentEntity || !courseEntity) {
             throw { statusCode: 404, message: "Student or course not found" };
+        }
+        // Check enrollment window
+        const now = new Date();
+        if (now < courseEntity.enrollment_start_date) {
+            throw { statusCode: 400, message: "Enrollment has not started yet" };
+        }
+        if (now > courseEntity.enrollment_deadline) {
+            throw { statusCode: 400, message: "Enrollment deadline has passed" };
+        }
+        // Prevent duplicate enrollment
+        const existingEnroll = await enrollmentRepo.findOne({
+            where: { student: { id: studentEntity.id }, course: { id: courseEntity.id } },
+        });
+        if (existingEnroll) {
+            throw { statusCode: 400, message: "Already enrolled in this course" };
+        }
         const newEnroll = enrollmentRepo.create({ student: studentEntity, course: courseEntity });
         await enrollmentRepo.save(newEnroll);
         res.status(201).json({ success: true, data: newEnroll });
@@ -21,7 +40,43 @@ export const enrollStudent = async (req, res, next) => {
         next(err);
     }
 };
-// Remove student from course
+// ------------------------------
+// Admin / SuperAdmin enrollment
+// ------------------------------
+export const enrollByAdmin = async (req, res, next) => {
+    try {
+        const user = req.user;
+        // Only admins or superadmins can use this route
+        if (user.role !== "admin" && user.role !== "super_admin") {
+            throw { statusCode: 403, message: "Forbidden: Only Admins can enroll students" };
+        }
+        const { student_id, course_id } = req.body;
+        if (!student_id || !course_id) {
+            throw { statusCode: 400, message: "student_id and course_id are required" };
+        }
+        const studentEntity = await studentRepo.findOneBy({ id: Number(student_id) });
+        const courseEntity = await courseRepo.findOneBy({ id: Number(course_id) });
+        if (!studentEntity || !courseEntity) {
+            throw { statusCode: 404, message: "Student or course not found" };
+        }
+        // Prevent duplicate enrollment
+        const existingEnroll = await enrollmentRepo.findOne({
+            where: { student: { id: studentEntity.id }, course: { id: courseEntity.id } },
+        });
+        if (existingEnroll) {
+            throw { statusCode: 400, message: "Student is already enrolled in this course" };
+        }
+        const newEnroll = enrollmentRepo.create({ student: studentEntity, course: courseEntity });
+        await enrollmentRepo.save(newEnroll);
+        res.status(201).json({ success: true, data: newEnroll });
+    }
+    catch (err) {
+        next(err);
+    }
+};
+// ------------------------------
+// Remove enrollment
+// ------------------------------
 export const removeEnrollment = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -35,7 +90,9 @@ export const removeEnrollment = async (req, res, next) => {
         next(err);
     }
 };
+// ------------------------------
 // List enrollments
+// ------------------------------
 export const getEnrollments = async (_req, res, next) => {
     try {
         const enrollments = await enrollmentRepo.find({ relations: ["student", "course"] });

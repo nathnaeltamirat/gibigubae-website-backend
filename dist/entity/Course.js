@@ -14,6 +14,10 @@ let course = class course {
     id;
     course_name;
     description;
+    start_date;
+    end_date;
+    enrollment_start_date;
+    enrollment_deadline;
     attendances;
     enrollments;
 };
@@ -29,6 +33,22 @@ __decorate([
     Column("text"),
     __metadata("design:type", String)
 ], course.prototype, "description", void 0);
+__decorate([
+    Column({ type: "timestamptz", name: "start_date" }),
+    __metadata("design:type", Date)
+], course.prototype, "start_date", void 0);
+__decorate([
+    Column({ type: "timestamptz", name: "end_date" }),
+    __metadata("design:type", Date)
+], course.prototype, "end_date", void 0);
+__decorate([
+    Column({ type: "timestamptz", name: "enrollment_start_date" }),
+    __metadata("design:type", Date)
+], course.prototype, "enrollment_start_date", void 0);
+__decorate([
+    Column({ type: "timestamptz", name: "enrollment_deadline" }),
+    __metadata("design:type", Date)
+], course.prototype, "enrollment_deadline", void 0);
 __decorate([
     OneToMany(() => attendance, (att) => att.course),
     __metadata("design:type", Array)

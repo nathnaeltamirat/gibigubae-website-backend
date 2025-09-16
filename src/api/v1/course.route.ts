@@ -7,6 +7,33 @@
 
 /**
  * @swagger
+ * components:
+ *   schemas:
+ *     Course:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         course_name:
+ *           type: string
+ *         description:
+ *           type: string
+ *         enrollment_start_date:
+ *           type: string
+ *           format: date-time
+ *         enrollment_deadline:
+ *           type: string
+ *           format: date-time
+ *         start_date:
+ *           type: string
+ *           format: date-time
+ *         end_date:
+ *           type: string
+ *           format: date-time
+ */
+
+/**
+ * @swagger
  * /courses:
  *   post:
  *     summary: Create a new course (Admin/Super Admin only)
@@ -22,9 +49,25 @@
  *                 type: string
  *               description:
  *                 type: string
+ *               enrollment_start_date:
+ *                 type: string
+ *                 format: date-time
+ *               enrollment_deadline:
+ *                 type: string
+ *                 format: date-time
+ *               start_date:
+ *                 type: string
+ *                 format: date-time
+ *               end_date:
+ *                 type: string
+ *                 format: date-time
  *             required:
  *               - course_name
  *               - description
+ *               - enrollment_start_date
+ *               - enrollment_deadline
+ *               - start_date
+ *               - end_date
  *     responses:
  *       201:
  *         description: Course created successfully
@@ -87,6 +130,18 @@
  *                 type: string
  *               description:
  *                 type: string
+ *               enrollment_start_date:
+ *                 type: string
+ *                 format: date-time
+ *               enrollment_deadline:
+ *                 type: string
+ *                 format: date-time
+ *               start_date:
+ *                 type: string
+ *                 format: date-time
+ *               end_date:
+ *                 type: string
+ *                 format: date-time
  *     responses:
  *       200:
  *         description: Course updated successfully
