@@ -1,10 +1,17 @@
 import { Router } from "express";
-import { removeEnrollment, getEnrollments } from "../controllers/enrollment.controller.js";
+import {
+  enrollSelf,
+  enrollByAdmin,
+  removeEnrollment,
+  getEnrollments,
+} from "../controllers/enrollment.controller.js";
 import { authenticate } from "../middlewares/authenticator.middleware.js";
 
 const enrollmentRouter = Router();
 
-// enrollmentRouter.post("/", authenticate, enrollStudent);
+
+enrollmentRouter.post("/self", authenticate, enrollSelf);
+enrollmentRouter.post("/admin", authenticate, enrollByAdmin);
 enrollmentRouter.delete("/:id", authenticate, removeEnrollment);
 enrollmentRouter.get("/", authenticate, getEnrollments);
 
