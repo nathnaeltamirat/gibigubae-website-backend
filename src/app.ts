@@ -19,7 +19,13 @@ import enrollmentRouter from "./routes/enrollment.route.js";
 import attendanceRouter from "./routes/attendance.route.js";
 
 const app = express();
-app.use(cors())
+app.use(cors({
+  origin: [
+    "http://localhost:5173", // dev
+    "https://your-frontend.vercel.app", // prod
+  ],
+  credentials: true, // ⬅️ this is required
+}));
 const specs = swaggerJsdoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
