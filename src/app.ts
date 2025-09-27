@@ -19,7 +19,13 @@ import enrollmentRouter from "./routes/enrollment.route.js";
 import attendanceRouter from "./routes/attendance.route.js";
 
 const app = express();
-app.use(cors())
+app.use(
+  cors({
+    origin: ["http://localhost:5173"], // frontend URL
+    credentials: true, // allow cookies/credentials
+  })
+);
+
 const specs = swaggerJsdoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
