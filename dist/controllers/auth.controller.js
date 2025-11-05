@@ -91,13 +91,13 @@ export const signUp = async (req, res, next) => {
         res.cookie("auth_token", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: "none",
             maxAge: 1000 * 60 * 60 * 24,
         });
         res.cookie("refresh_token", refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: "none",
             maxAge: 1000 * 60 * 60 * 24 * 7,
         });
         res.status(201).json({
@@ -160,13 +160,13 @@ export const signIn = async (req, res, next) => {
         res.cookie("auth_token", token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: "none",
             maxAge: 1000 * 60 * 60 * 24,
         });
         res.cookie("refresh_token", refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: "none",
             maxAge: 1000 * 60 * 60 * 24 * 7,
         });
         res.status(200).json({
@@ -204,7 +204,7 @@ export const refreshToken = (req, res) => {
         res.cookie("auth_token", newToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: "none",
             maxAge: 1000 * 60 * 60 * 24,
         });
         res.json({ success: true, message: "Token refreshed" });
