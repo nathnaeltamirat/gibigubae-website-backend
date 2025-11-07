@@ -6,46 +6,41 @@ interface CustomError extends Error {
   errors?: Record<string, { message: string }>;
 }
 
-const errorMiddleware = async (
+const errorMiddleware = (
   err: CustomError,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    let error: CustomError = { ...err };
-    error.message = err.message;
+  // Log the full error stack for debugging
+  console.error(err);
 
-    if (err.name === "CastError") {
-      const message = "Resource not found";
-      error = new Error(message) as CustomError;
-      error.statusCode = 404;
-    }
+  let statusCode = err.statusCode || 500;
+  let message = err.message || "Internal Server Error";
 
-    if (err.code === 11000) {
-      const message = "Duplicate key found";
-      error = new Error(message) as CustomError;
-      error.statusCode = 400;
-    }
-
-    if (err.name === "ValidationError") {
-      const messages = err.errors
-        ? Object.values(err.errors).map((val) => val.message)
-        : ["Validation error"];
-      error = new Error(messages.join(", ")) as CustomError;
-      error.statusCode = 400;
-    }
-
-    res.status(error.statusCode || 500).json({
-      success: false,
-      error: error.message || "Server error",
-    });
-
-    console.error(err);
-  } catch (innerErr) {
-    console.error(innerErr);
-    next(innerErr);
+  // Handle common mongoose errors
+  if (err.name === "CastError") {
+    statusCode = 404;
+    message = "Resource not found";
   }
+
+  if (err.code === 11000) {
+    statusCode = 400;
+    message = "Duplicate key found";
+  }
+
+  if (err.name === "ValidationError") {
+    const messages = err.errors
+      ? Object.values(err.errors).map((val) => val.message)
+      : ["Validation error"];
+    statusCode = 400;
+    message = messages.join(", ");
+  }
+
+  res.status(statusCode).json({
+    success: false,
+    error: message,
+  });
 };
 
 export default errorMiddleware;
