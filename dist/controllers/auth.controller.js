@@ -90,14 +90,14 @@ export const signUp = async (req, res, next) => {
         // Set access token (1 day)
         res.cookie("auth_token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "none",
+            secure: process.env.NODE_ENV === "production", // false in dev
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 1000 * 60 * 60 * 24,
         });
         res.cookie("refresh_token", refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "none",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 1000 * 60 * 60 * 24 * 7,
         });
         res.status(201).json({
@@ -159,14 +159,14 @@ export const signIn = async (req, res, next) => {
         }, JWT_REFRESH_SECRET, { expiresIn: JWT_REFRESH_EXPIRES_IN });
         res.cookie("auth_token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "none",
+            secure: process.env.NODE_ENV === "production", // false in dev
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 1000 * 60 * 60 * 24,
         });
         res.cookie("refresh_token", refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "none",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 1000 * 60 * 60 * 24 * 7,
         });
         res.status(200).json({
