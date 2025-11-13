@@ -1,19 +1,47 @@
-import type { Request, Response, NextFunction } from "express";
+import type { Request, Response } from "express";
 import { AppDataSource } from "../data-source.js";
 import { attendance } from "../entity/Attendance.js";
 import { student } from "../entity/Student.js";
 import { course } from "../entity/Course.js";
 import { enrollment } from "../entity/Enrollment.js";
 
+// --------------------------------------
+// 🧩 Inline error handler utility
+// --------------------------------------
+interface CustomError {
+  statusCode?: number;
+  message?: string;
+  errors?: Record<string, { message: string }>;
+}
+
+const handleError = (res: Response, err: unknown) => {
+  const error = err as CustomError;
+  const statusCode = error.statusCode || 500;
+  const message =
+    error.message ||
+    (statusCode === 500
+      ? "Internal Server Error"
+      : "An unexpected error occurred");
+
+  res.status(statusCode).json({
+    success: false,
+    message,
+    errors: error.errors || null,
+  });
+};
+
+// --------------------------------------
+// 🗂️ Repository setup
+// --------------------------------------
 const attendanceRepo = AppDataSource.getRepository(attendance);
 const studentRepo = AppDataSource.getRepository(student);
 const courseRepo = AppDataSource.getRepository(course);
 const enrollmentRepo = AppDataSource.getRepository(enrollment);
 
-// ------------------------------
-// Create attendance for a course (Admin/SuperAdmin)
-// ------------------------------
-export const createAttendance = async (req: Request, res: Response, next: NextFunction) => {
+// --------------------------------------
+// 📅 Create attendance for a course (Admin/SuperAdmin)
+// --------------------------------------
+export const createAttendance = async (req: Request, res: Response) => {
   try {
     const user = req.user as { role: string };
     if (!["admin", "super_admin"].includes(user.role)) {
@@ -21,7 +49,8 @@ export const createAttendance = async (req: Request, res: Response, next: NextFu
     }
 
     const { course_id, code, start_in_minutes } = req.body;
-    if (!start_in_minutes) throw { statusCode: 400, message: "start_in_minutes required" };
+    if (!start_in_minutes)
+      throw { statusCode: 400, message: "start_in_minutes required" };
 
     const courseEntity = await courseRepo.findOneBy({ id: Number(course_id) });
     if (!courseEntity) throw { statusCode: 404, message: "Course not found" };
@@ -31,10 +60,13 @@ export const createAttendance = async (req: Request, res: Response, next: NextFu
       relations: ["student"],
     });
 
-    if (!enrollments.length) throw { statusCode: 400, message: "No students enrolled" };
+    if (!enrollments.length)
+      throw { statusCode: 400, message: "No students enrolled" };
 
     const now = new Date();
-    const classStartTime = new Date(now.getTime() + Number(start_in_minutes) * 60000);
+    const classStartTime = new Date(
+      now.getTime() + Number(start_in_minutes) * 60000
+    );
 
     const records = enrollments.map((enroll) =>
       attendanceRepo.create({
@@ -47,21 +79,25 @@ export const createAttendance = async (req: Request, res: Response, next: NextFu
     );
 
     await attendanceRepo.save(records);
+
     res.status(201).json({ success: true, data: records });
   } catch (err) {
-    next(err);
+    handleError(res, err);
   }
 };
 
-// ------------------------------
-// Mark attendance via QR
-// ------------------------------
-export const markAttendanceQR = async (req: Request, res: Response, next: NextFunction) => {
+// --------------------------------------
+// 🎯 Mark attendance via QR
+// --------------------------------------
+export const markAttendanceQR = async (req: Request, res: Response) => {
   try {
     const { student_id, course_id } = req.query;
 
     const record = await attendanceRepo.findOne({
-      where: { student: { id: Number(student_id) }, course: { id: Number(course_id) } },
+      where: {
+        student: { id: Number(student_id) },
+        course: { id: Number(course_id) },
+      },
     });
 
     if (!record) throw { statusCode: 404, message: "Attendance not found" };
@@ -70,45 +106,52 @@ export const markAttendanceQR = async (req: Request, res: Response, next: NextFu
     const lateWindow = new Date(record.date);
     lateWindow.setMinutes(record.date.getMinutes() + 30);
 
-    record.status = now <= record.date ? "present" : now <= lateWindow ? "late" : "absent";
-    await attendanceRepo.save(record);
+    record.status =
+      now <= record.date ? "present" : now <= lateWindow ? "late" : "absent";
 
+    await attendanceRepo.save(record);
     res.json({ success: true, data: record });
   } catch (err) {
-    next(err);
+    handleError(res, err);
   }
 };
 
-// ------------------------------
-// Mark attendance via code
-// ------------------------------
-export const markAttendanceCode = async (req: Request, res: Response, next: NextFunction) => {
+// --------------------------------------
+// 🔢 Mark attendance via code
+// --------------------------------------
+export const markAttendanceCode = async (req: Request, res: Response) => {
   try {
     const { student_id, course_id, code } = req.body;
 
     const record = await attendanceRepo.findOne({
-      where: { student: { id: Number(student_id) }, course: { id: Number(course_id) }, code },
+      where: {
+        student: { id: Number(student_id) },
+        course: { id: Number(course_id) },
+        code,
+      },
     });
 
-    if (!record) throw { statusCode: 404, message: "Invalid code or record not found" };
+    if (!record)
+      throw { statusCode: 404, message: "Invalid code or record not found" };
 
     const now = new Date();
     const lateWindow = new Date(record.date);
     lateWindow.setMinutes(record.date.getMinutes() + 30);
 
-    record.status = now <= record.date ? "present" : now <= lateWindow ? "late" : "absent";
-    await attendanceRepo.save(record);
+    record.status =
+      now <= record.date ? "present" : now <= lateWindow ? "late" : "absent";
 
+    await attendanceRepo.save(record);
     res.json({ success: true, data: record });
   } catch (err) {
-    next(err);
+    handleError(res, err);
   }
 };
 
-// ------------------------------
-// Manual attendance update (Admin)
-// ------------------------------
-export const updateAttendanceManual = async (req: Request, res: Response, next: NextFunction) => {
+// --------------------------------------
+// 🧑‍🏫 Manual attendance update (Admin)
+// --------------------------------------
+export const updateAttendanceManual = async (req: Request, res: Response) => {
   try {
     const user = req.user as { role: string };
     if (!["admin", "super_admin"].includes(user.role)) {
@@ -120,7 +163,9 @@ export const updateAttendanceManual = async (req: Request, res: Response, next: 
       throw { statusCode: 400, message: "Invalid status value" };
     }
 
-    const record = await attendanceRepo.findOneBy({ id: Number(attendance_id) });
+    const record = await attendanceRepo.findOneBy({
+      id: Number(attendance_id),
+    });
     if (!record) throw { statusCode: 404, message: "Attendance not found" };
 
     record.status = status;
@@ -128,14 +173,14 @@ export const updateAttendanceManual = async (req: Request, res: Response, next: 
 
     res.json({ success: true, data: record });
   } catch (err) {
-    next(err);
+    handleError(res, err);
   }
 };
 
-// ------------------------------
-// Get all attendance for a course
-// ------------------------------
-export const getCourseAttendance = async (req: Request, res: Response, next: NextFunction) => {
+// --------------------------------------
+// 📚 Get all attendance for a course
+// --------------------------------------
+export const getCourseAttendance = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.params;
 
@@ -146,24 +191,30 @@ export const getCourseAttendance = async (req: Request, res: Response, next: Nex
 
     res.json({ success: true, data: records });
   } catch (err) {
-    next(err);
+    handleError(res, err);
   }
 };
 
-// ------------------------------
-// Get one student's attendance in a course
-// ------------------------------
-export const getStudentAttendanceInCourse = async (req: Request, res: Response, next: NextFunction) => {
+// --------------------------------------
+// 👨‍🎓 Get one student's attendance in a course
+// --------------------------------------
+export const getStudentAttendanceInCourse = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const { courseId, studentId } = req.params;
 
     const records = await attendanceRepo.find({
-      where: { course: { id: Number(courseId) }, student: { id: Number(studentId) } },
+      where: {
+        course: { id: Number(courseId) },
+        student: { id: Number(studentId) },
+      },
       relations: ["student", "course"],
     });
 
     res.json({ success: true, data: records });
   } catch (err) {
-    next(err);
+    handleError(res, err);
   }
 };
