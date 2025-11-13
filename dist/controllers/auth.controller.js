@@ -6,7 +6,16 @@ import { JWT_EXPIRES_IN, JWT_REFRESH_EXPIRES_IN, JWT_REFRESH_SECRET, JWT_SECRET,
 import { uploadToCloudinary } from "../utils/cloudinary.js";
 import { academic_info } from "../entity/AcademicInfo.js";
 import { department } from "../entity/Department.js";
-export const signUp = async (req, res, next) => {
+// Helper for unified error responses
+const handleError = (res, err) => {
+    const error = err;
+    const statusCode = error.statusCode || 500;
+    res.status(statusCode).json({
+        success: false,
+        message: error.message || "Internal Server Error",
+    });
+};
+export const signUp = async (req, res) => {
     try {
         const { first_name, father_name, grand_father_name, email, password, id_number, gender, department_name, phone_number, } = req.body;
         const userRepository = AppDataSource.getRepository(student);
@@ -36,7 +45,7 @@ export const signUp = async (req, res, next) => {
         });
         if (existingUser) {
             const error = new Error("User already exists");
-            error.statusCode = 500;
+            error.statusCode = 400;
             throw error;
         }
         const salt = await bcrypt.genSalt(10);
@@ -51,7 +60,7 @@ export const signUp = async (req, res, next) => {
             where: { department_name },
         });
         if (!existing_department) {
-            const error = new Error("Department is required");
+            const error = new Error("Department not found");
             error.statusCode = 400;
             throw error;
         }
@@ -77,28 +86,20 @@ export const signUp = async (req, res, next) => {
             error.statusCode = 500;
             throw error;
         }
-        const token = jwt.sign({
-            user_id: newStudent.id,
-            email: newStudent.email,
-            role: newStudent.role,
-        }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-        const refreshToken = jwt.sign({
-            user_id: newStudent.id,
-            email: newStudent.email,
-            role: newStudent.role,
-        }, JWT_REFRESH_SECRET, { expiresIn: JWT_REFRESH_EXPIRES_IN });
-        // Set access token (1 day)
+        const token = jwt.sign({ user_id: newStudent.id, email: newStudent.email, role: newStudent.role }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+        const refreshToken = jwt.sign({ user_id: newStudent.id, email: newStudent.email, role: newStudent.role }, JWT_REFRESH_SECRET, { expiresIn: JWT_REFRESH_EXPIRES_IN });
+        // Set cookies
         res.cookie("auth_token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production", // false in dev
+            secure: process.env.NODE_ENV === "production",
             sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-            maxAge: 1000 * 60 * 60 * 24,
+            maxAge: 1000 * 60 * 60 * 24, // 1 day
         });
         res.cookie("refresh_token", refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-            maxAge: 1000 * 60 * 60 * 24 * 7,
+            maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
         });
         res.status(201).json({
             success: true,
@@ -113,10 +114,10 @@ export const signUp = async (req, res, next) => {
         });
     }
     catch (err) {
-        next(err);
+        handleError(res, err);
     }
 };
-export const signIn = async (req, res, next) => {
+export const signIn = async (req, res) => {
     try {
         const { phone_or_email, password } = req.body;
         if (!phone_or_email || !password) {
@@ -147,19 +148,11 @@ export const signIn = async (req, res, next) => {
             error.statusCode = 500;
             throw error;
         }
-        const token = jwt.sign({
-            user_id: existingUser.id,
-            email: existingUser.email,
-            role: existingUser.role,
-        }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-        const refreshToken = jwt.sign({
-            user_id: existingUser.id,
-            email: existingUser.email,
-            role: existingUser.role,
-        }, JWT_REFRESH_SECRET, { expiresIn: JWT_REFRESH_EXPIRES_IN });
+        const token = jwt.sign({ user_id: existingUser.id, email: existingUser.email, role: existingUser.role }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+        const refreshToken = jwt.sign({ user_id: existingUser.id, email: existingUser.email, role: existingUser.role }, JWT_REFRESH_SECRET, { expiresIn: JWT_REFRESH_EXPIRES_IN });
         res.cookie("auth_token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production", // false in dev
+            secure: process.env.NODE_ENV === "production",
             sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 1000 * 60 * 60 * 24,
         });
@@ -182,7 +175,7 @@ export const signIn = async (req, res, next) => {
         });
     }
     catch (err) {
-        next(err);
+        handleError(res, err);
     }
 };
 export const logout = (req, res) => {
@@ -193,7 +186,7 @@ export const logout = (req, res) => {
 export const refreshToken = (req, res) => {
     const refreshToken = req.cookies?.refresh_token;
     if (!refreshToken)
-        return res.status(401).json({ message: "Unauthorized" });
+        return res.status(401).json({ success: false, message: "Unauthorized" });
     try {
         const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
         const newToken = jwt.sign({
@@ -210,7 +203,7 @@ export const refreshToken = (req, res) => {
         res.json({ success: true, message: "Token refreshed" });
     }
     catch (err) {
-        return res.status(401).json({ message: "Invalid refresh token" });
+        return res.status(401).json({ success: false, message: "Invalid refresh token" });
     }
 };
 //# sourceMappingURL=auth.controller.js.map
