@@ -17,6 +17,7 @@ import adminRouter from "./routes/admin.route.js";
 import courseRouter from "./routes/course.route.js";
 import enrollmentRouter from "./routes/enrollment.route.js";
 import attendanceRouter from "./routes/attendance.route.js";
+import analyticsRouter from "./routes/analytics.route.js";
 
 const app = express();
 app.use(
@@ -44,7 +45,7 @@ app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/courses", courseRouter);
 app.use("/api/v1/enrollments", enrollmentRouter);
 app.use("/api/v1/attendance", attendanceRouter);
-
+app.use("/api/v1/analytics",analyticsRouter)
 app.use(errorMiddleware);
 
 export default app;
