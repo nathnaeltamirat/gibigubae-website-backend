@@ -16,25 +16,26 @@ const handleError = (res, err) => {
         errors: error.errors || null,
     });
 };
-// --------------------------------------
-// 🗂️ Repository setup
-// --------------------------------------
+// ----------------------------
+// 🗂️ Repositories
+// ----------------------------
 const attendanceRepo = AppDataSource.getRepository(attendance);
 const studentRepo = AppDataSource.getRepository(student);
 const courseRepo = AppDataSource.getRepository(course);
 const enrollmentRepo = AppDataSource.getRepository(enrollment);
-// --------------------------------------
-// 📅 Create attendance for a course (Admin/SuperAdmin)
-// --------------------------------------
+// ----------------------------
+// 📅 Create attendance
+// ----------------------------
 export const createAttendance = async (req, res) => {
     try {
         const user = req.user;
-        if (!["admin", "super_admin"].includes(user.role)) {
+        if (!user || !["admin", "super_admin"].includes(user.role)) {
             throw { statusCode: 403, message: "Forbidden: Admins only" };
         }
         const { course_id, code, start_in_minutes } = req.body;
-        if (!start_in_minutes)
-            throw { statusCode: 400, message: "start_in_minutes required" };
+        if (!course_id || !code || start_in_minutes == null) {
+            throw { statusCode: 400, message: "course_id, code, start_in_minutes are required" };
+        }
         const courseEntity = await courseRepo.findOneBy({ id: Number(course_id) });
         if (!courseEntity)
             throw { statusCode: 404, message: "Course not found" };
@@ -60,12 +61,15 @@ export const createAttendance = async (req, res) => {
         handleError(res, err);
     }
 };
-// --------------------------------------
+// ----------------------------
 // 🎯 Mark attendance via QR
-// --------------------------------------
+// ----------------------------
 export const markAttendanceQR = async (req, res) => {
     try {
         const { student_id, course_id } = req.query;
+        if (!student_id || !course_id) {
+            throw { statusCode: 400, message: "student_id and course_id are required" };
+        }
         const record = await attendanceRepo.findOne({
             where: {
                 student: { id: Number(student_id) },
@@ -74,11 +78,11 @@ export const markAttendanceQR = async (req, res) => {
         });
         if (!record)
             throw { statusCode: 404, message: "Attendance not found" };
+        const recordDate = new Date(record.date);
         const now = new Date();
-        const lateWindow = new Date(record.date);
-        lateWindow.setMinutes(record.date.getMinutes() + 30);
-        record.status =
-            now <= record.date ? "present" : now <= lateWindow ? "late" : "absent";
+        const lateWindow = new Date(recordDate);
+        lateWindow.setMinutes(recordDate.getMinutes() + 30);
+        record.status = now <= recordDate ? "present" : now <= lateWindow ? "late" : "absent";
         await attendanceRepo.save(record);
         res.json({ success: true, data: record });
     }
@@ -86,12 +90,15 @@ export const markAttendanceQR = async (req, res) => {
         handleError(res, err);
     }
 };
-// --------------------------------------
+// ----------------------------
 // 🔢 Mark attendance via code
-// --------------------------------------
+// ----------------------------
 export const markAttendanceCode = async (req, res) => {
     try {
         const { student_id, course_id, code } = req.body;
+        if (!student_id || !course_id || !code) {
+            throw { statusCode: 400, message: "student_id, course_id, and code are required" };
+        }
         const record = await attendanceRepo.findOne({
             where: {
                 student: { id: Number(student_id) },
@@ -101,11 +108,11 @@ export const markAttendanceCode = async (req, res) => {
         });
         if (!record)
             throw { statusCode: 404, message: "Invalid code or record not found" };
+        const recordDate = new Date(record.date);
         const now = new Date();
-        const lateWindow = new Date(record.date);
-        lateWindow.setMinutes(record.date.getMinutes() + 30);
-        record.status =
-            now <= record.date ? "present" : now <= lateWindow ? "late" : "absent";
+        const lateWindow = new Date(recordDate);
+        lateWindow.setMinutes(recordDate.getMinutes() + 30);
+        record.status = now <= recordDate ? "present" : now <= lateWindow ? "late" : "absent";
         await attendanceRepo.save(record);
         res.json({ success: true, data: record });
     }
@@ -113,22 +120,20 @@ export const markAttendanceCode = async (req, res) => {
         handleError(res, err);
     }
 };
-// --------------------------------------
+// ----------------------------
 // 🧑‍🏫 Manual attendance update (Admin)
-// --------------------------------------
+// ----------------------------
 export const updateAttendanceManual = async (req, res) => {
     try {
         const user = req.user;
-        if (!["admin", "super_admin"].includes(user.role)) {
+        if (!user || !["admin", "super_admin"].includes(user.role)) {
             throw { statusCode: 403, message: "Forbidden: Admins only" };
         }
         const { attendance_id, status } = req.body;
-        if (!["present", "late", "absent"].includes(status)) {
-            throw { statusCode: 400, message: "Invalid status value" };
+        if (!attendance_id || !["present", "late", "absent"].includes(status)) {
+            throw { statusCode: 400, message: "attendance_id and valid status are required" };
         }
-        const record = await attendanceRepo.findOneBy({
-            id: Number(attendance_id),
-        });
+        const record = await attendanceRepo.findOneBy({ id: Number(attendance_id) });
         if (!record)
             throw { statusCode: 404, message: "Attendance not found" };
         record.status = status;
@@ -139,12 +144,14 @@ export const updateAttendanceManual = async (req, res) => {
         handleError(res, err);
     }
 };
-// --------------------------------------
+// ----------------------------
 // 📚 Get all attendance for a course
-// --------------------------------------
+// ----------------------------
 export const getCourseAttendance = async (req, res) => {
     try {
         const { courseId } = req.params;
+        if (!courseId)
+            throw { statusCode: 400, message: "courseId is required" };
         const records = await attendanceRepo.find({
             where: { course: { id: Number(courseId) } },
             relations: ["student", "course"],
@@ -155,12 +162,14 @@ export const getCourseAttendance = async (req, res) => {
         handleError(res, err);
     }
 };
-// --------------------------------------
+// ----------------------------
 // 👨‍🎓 Get one student's attendance in a course
-// --------------------------------------
+// ----------------------------
 export const getStudentAttendanceInCourse = async (req, res) => {
     try {
         const { courseId, studentId } = req.params;
+        if (!courseId || !studentId)
+            throw { statusCode: 400, message: "courseId and studentId are required" };
         const records = await attendanceRepo.find({
             where: {
                 course: { id: Number(courseId) },
