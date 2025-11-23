@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-interface JwtUserPayload extends jwt.JwtPayload {
+export interface JwtUserPayload extends jwt.JwtPayload {
   user_id: string;
   email: string;
   role: string;
@@ -9,8 +9,9 @@ interface JwtUserPayload extends jwt.JwtPayload {
 
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies?.auth_token;
+  console.log(token)
   if (!token) return res.status(401).json({ message: "Unauthorized" });
-
+  
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtUserPayload;
     // @ts-ignore

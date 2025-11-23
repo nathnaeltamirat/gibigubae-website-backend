@@ -45,7 +45,7 @@ export {};
  * @swagger
  * /attendance:
  *   post:
- *     summary: Create attendance for a course (Admin/Super Admin only)
+ *     summary: Create attendance for a course (Admin / Super Admin only)
  *     tags: [Attendance]
  *     requestBody:
  *       required: true
@@ -59,14 +59,13 @@ export {};
  *                 example: 2
  *               code:
  *                 type: string
- *                 description: Optional code for attendance marking
  *                 example: "XYZ123"
  *               start_in_minutes:
  *                 type: integer
- *                 description: Minutes from now when class starts
  *                 example: 10
  *             required:
  *               - course_id
+ *               - code
  *               - start_in_minutes
  *     responses:
  *       201:
@@ -78,16 +77,17 @@ export {};
  *               properties:
  *                 success:
  *                   type: boolean
+ *                   example: true
  *                 data:
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Attendance'
  *       403:
  *         description: Forbidden (Admins only)
+ *       400:
+ *         description: Required fields missing or no students enrolled
  *       404:
  *         description: Course not found
- *       400:
- *         description: No students enrolled
  */
 /**
  * @swagger
@@ -101,14 +101,12 @@ export {};
  *         schema:
  *           type: integer
  *         required: true
- *         description: Student ID
  *         example: 5
  *       - in: query
  *         name: course_id
  *         schema:
  *           type: integer
  *         required: true
- *         description: Course ID
  *         example: 2
  *     responses:
  *       200:
@@ -122,6 +120,8 @@ export {};
  *                   type: boolean
  *                 data:
  *                   $ref: '#/components/schemas/Attendance'
+ *       400:
+ *         description: Missing required parameters
  *       404:
  *         description: Attendance record not found
  */
@@ -129,7 +129,7 @@ export {};
  * @swagger
  * /attendance/mark/code:
  *   post:
- *     summary: Mark attendance via code
+ *     summary: Mark attendance using class code
  *     tags: [Attendance]
  *     requestBody:
  *       required: true
@@ -163,6 +163,8 @@ export {};
  *                   type: boolean
  *                 data:
  *                   $ref: '#/components/schemas/Attendance'
+ *       400:
+ *         description: Missing required fields
  *       404:
  *         description: Invalid code or attendance record not found
  */
@@ -170,7 +172,7 @@ export {};
  * @swagger
  * /attendance/manual:
  *   put:
- *     summary: Manual attendance update (Admin only)
+ *     summary: Manually update attendance (Admin / Super Admin only)
  *     tags: [Attendance]
  *     requestBody:
  *       required: true
@@ -201,10 +203,12 @@ export {};
  *                   type: boolean
  *                 data:
  *                   $ref: '#/components/schemas/Attendance'
- *       404:
- *         description: Attendance record not found
+ *       400:
+ *         description: Missing required fields or invalid status
  *       403:
  *         description: Forbidden (Admins only)
+ *       404:
+ *         description: Attendance not found
  */
 /**
  * @swagger
@@ -215,14 +219,13 @@ export {};
  *     parameters:
  *       - in: path
  *         name: courseId
+ *         required: true
  *         schema:
  *           type: integer
- *         required: true
- *         description: Course ID
  *         example: 2
  *     responses:
  *       200:
- *         description: List of attendance records
+ *         description: List of attendance records for the course
  *         content:
  *           application/json:
  *             schema:
@@ -234,31 +237,31 @@ export {};
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Attendance'
+ *       400:
+ *         description: Missing courseId
  */
 /**
  * @swagger
- * /attendance/course/{courseId}/student/{studentId}:
+ * /attendance/course/{courseId}/student/:
  *   get:
- *     summary: Get attendance records for a student in a course
+ *     summary: Get attendance for a student in a specific course
  *     tags: [Attendance]
  *     parameters:
  *       - in: path
  *         name: courseId
+ *         required: true
  *         schema:
  *           type: integer
- *         required: true
- *         description: Course ID
  *         example: 2
  *       - in: path
  *         name: studentId
+ *         required: true
  *         schema:
  *           type: integer
- *         required: true
- *         description: Student ID
  *         example: 5
  *     responses:
  *       200:
- *         description: Attendance records for the student
+ *         description: Attendance records for the student in the course
  *         content:
  *           application/json:
  *             schema:
@@ -270,5 +273,7 @@ export {};
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Attendance'
+ *       400:
+ *         description: Missing courseId or studentId
  */
 //# sourceMappingURL=attendance.route.js.map

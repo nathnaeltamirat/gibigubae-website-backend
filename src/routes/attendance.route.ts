@@ -17,6 +17,6 @@ attendanceRouter.post("/mark/code", authenticate, markAttendanceCode);
 attendanceRouter.put("/manual", authenticate, updateAttendanceManual);
 
 attendanceRouter.get("/course/:courseId", authenticate, getCourseAttendance);
-attendanceRouter.get("/course/:courseId/student/:studentId", authenticate, getStudentAttendanceInCourse);
+attendanceRouter.get("/course/:courseId/student", authenticate, getStudentAttendanceInCourse);
 
 export default attendanceRouter;

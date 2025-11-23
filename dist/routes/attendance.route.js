@@ -6,7 +6,7 @@ attendanceRouter.post("/", authenticate, createAttendance);
 attendanceRouter.get("/mark/qr", authenticate, markAttendanceQR);
 attendanceRouter.post("/mark/code", authenticate, markAttendanceCode);
 attendanceRouter.put("/manual", authenticate, updateAttendanceManual);
-attendanceRouter.get("/:courseId", authenticate, getCourseAttendance);
-attendanceRouter.get("/course/:courseId/student/:studentId", authenticate, getStudentAttendanceInCourse);
+attendanceRouter.get("/course/:courseId", authenticate, getCourseAttendance);
+attendanceRouter.get("/course/:courseId/student", authenticate, getStudentAttendanceInCourse);
 export default attendanceRouter;
 //# sourceMappingURL=attendance.route.js.map

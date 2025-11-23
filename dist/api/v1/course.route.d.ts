@@ -81,12 +81,9 @@ export {};
  *                   $ref: '#/components/schemas/Course'
  *       403:
  *         description: Forbidden (Admins only)
- */
-/**
- * @swagger
- * /courses:
+ *
  *   get:
- *     summary: Get all courses
+ *     summary: Get all courses (Admin only)
  *     tags: [Course]
  *     responses:
  *       200:
@@ -102,6 +99,57 @@ export {};
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Course'
+ */
+/**
+ * @swagger
+ * /courses/student:
+ *   get:
+ *     summary: Get courses for the logged-in student
+ *     tags: [Course]
+ *     responses:
+ *       200:
+ *         description: List of student courses
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Course'
+ *       401:
+ *         description: Unauthorized (Student must be logged in)
+ */
+/**
+ * @swagger
+ * /courses/{id}:
+ *   get:
+ *     summary: Get course by ID (Admin/Student)
+ *     tags: [Course]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Course ID
+ *     responses:
+ *       200:
+ *         description: Course object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/Course'
+ *       404:
+ *         description: Course not found
  */
 /**
  * @swagger
@@ -155,10 +203,7 @@ export {};
  *         description: Course not found
  *       403:
  *         description: Forbidden (Admins only)
- */
-/**
- * @swagger
- * /courses/{id}:
+ *
  *   delete:
  *     summary: Delete a course (Admin/Super Admin only)
  *     tags: [Course]
