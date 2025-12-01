@@ -1,4 +1,4 @@
-import { attendance } from "./Attendance.js";
+import { AttendanceSession } from "./AttendanceSession.js";
 import { enrollment } from "./Enrollment.js";
 export declare class course {
     id: number;
@@ -8,7 +8,9 @@ export declare class course {
     end_date: Date;
     enrollment_start_date: Date;
     enrollment_deadline: Date;
-    attendances: attendance[];
+    sessions: AttendanceSession[];
     enrollments: enrollment[];
+    created_at: Date;
+    updated_at: Date;
 }
 //# sourceMappingURL=Course.d.ts.map

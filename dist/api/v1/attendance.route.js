@@ -9,43 +9,68 @@ export {};
  * @swagger
  * components:
  *   schemas:
- *     Attendance:
+ *     Student:
  *       type: object
  *       properties:
  *         id:
  *           type: integer
- *           example: 1
- *         student:
- *           type: object
- *           description: Student entity
- *           example:
- *             id: 5
- *             first_name: "John"
- *             email: "john@example.com"
- *         course:
- *           type: object
- *           description: Course entity
- *           example:
- *             id: 2
- *             course_name: "Intro to Theology"
- *         date:
+ *           example: 5
+ *         first_name:
  *           type: string
- *           format: date-time
- *           example: "2025-09-26T08:30:00.000Z"
+ *           example: "John"
+ *         father_name:
+ *           type: string
+ *           example: "Doe"
+ *         email:
+ *           type: string
+ *           example: "john@example.com"
+ *
+ *     Course:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 2
+ *         course_name:
+ *           type: string
+ *           example: "Intro to Theology"
+ *
+ *     Attendance:
+ *       type: object
+ *       properties:
+ *         attendance_id:
+ *           type: integer
+ *           example: 101
+ *         student:
+ *           $ref: '#/components/schemas/Student'
  *         status:
  *           type: string
  *           enum: [present, late, absent]
  *           example: "present"
+ *
+ *     AttendanceSession:
+ *       type: object
+ *       properties:
+ *         session_id:
+ *           type: integer
+ *           example: 1
  *         code:
  *           type: string
- *           nullable: true
  *           example: "XYZ123"
+ *         date:
+ *           type: string
+ *           format: date-time
+ *           example: "2025-11-28T13:53:07.222Z"
+ *         attendances:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Attendance'
  */
 /**
  * @swagger
  * /attendance:
  *   post:
- *     summary: Create attendance for a course (Admin / Super Admin only)
+ *     summary: Create attendance session for a course (Admin / Super Admin only)
  *     tags: [Attendance]
  *     requestBody:
  *       required: true
@@ -69,7 +94,7 @@ export {};
  *               - start_in_minutes
  *     responses:
  *       201:
- *         description: Attendance created successfully
+ *         description: Attendance session created successfully
  *         content:
  *           application/json:
  *             schema:
@@ -78,14 +103,17 @@ export {};
  *                 success:
  *                   type: boolean
  *                   example: true
- *                 data:
+ *                 session_id:
+ *                   type: integer
+ *                   example: 1
+ *                 attendances:
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Attendance'
  *       403:
  *         description: Forbidden (Admins only)
  *       400:
- *         description: Required fields missing or no students enrolled
+ *         description: Missing required fields or no students enrolled
  *       404:
  *         description: Course not found
  */
@@ -103,11 +131,11 @@ export {};
  *         required: true
  *         example: 5
  *       - in: query
- *         name: course_id
+ *         name: attendance_id
  *         schema:
  *           type: integer
  *         required: true
- *         example: 2
+ *         example: 101
  *     responses:
  *       200:
  *         description: Attendance updated successfully
@@ -129,7 +157,7 @@ export {};
  * @swagger
  * /attendance/mark/code:
  *   post:
- *     summary: Mark attendance using class code
+ *     summary: Mark attendance using session code
  *     tags: [Attendance]
  *     requestBody:
  *       required: true
@@ -141,15 +169,15 @@ export {};
  *               student_id:
  *                 type: integer
  *                 example: 5
- *               course_id:
+ *               attendance_id:
  *                 type: integer
- *                 example: 2
+ *                 example: 101
  *               code:
  *                 type: string
  *                 example: "XYZ123"
  *             required:
  *               - student_id
- *               - course_id
+ *               - attendance_id
  *               - code
  *     responses:
  *       200:
@@ -183,7 +211,7 @@ export {};
  *             properties:
  *               attendance_id:
  *                 type: integer
- *                 example: 1
+ *                 example: 101
  *               status:
  *                 type: string
  *                 enum: [present, late, absent]
@@ -212,20 +240,20 @@ export {};
  */
 /**
  * @swagger
- * /attendance/course/{courseId}:
+ * /attendance/session/{sessionId}:
  *   get:
- *     summary: Get all attendance records for a course
+ *     summary: Get all attendance records for a session
  *     tags: [Attendance]
  *     parameters:
  *       - in: path
- *         name: courseId
+ *         name: sessionId
  *         required: true
  *         schema:
  *           type: integer
- *         example: 2
+ *         example: 1
  *     responses:
  *       200:
- *         description: List of attendance records for the course
+ *         description: List of attendance records for the session
  *         content:
  *           application/json:
  *             schema:
@@ -238,23 +266,23 @@ export {};
  *                   items:
  *                     $ref: '#/components/schemas/Attendance'
  *       400:
- *         description: Missing courseId
+ *         description: Missing sessionId
  */
 /**
  * @swagger
- * /attendance/course/{courseId}/student/:
+ * /attendance/course/{course_id}/student/{student_id}:
  *   get:
- *     summary: Get attendance for a student in a specific course
+ *     summary: Get attendance for a student in a course
  *     tags: [Attendance]
  *     parameters:
  *       - in: path
- *         name: courseId
+ *         name: course_id
  *         required: true
  *         schema:
  *           type: integer
  *         example: 2
  *       - in: path
- *         name: studentId
+ *         name: student_id
  *         required: true
  *         schema:
  *           type: integer
@@ -274,6 +302,36 @@ export {};
  *                   items:
  *                     $ref: '#/components/schemas/Attendance'
  *       400:
- *         description: Missing courseId or studentId
+ *         description: Missing course_id or student_id
+ */
+/**
+ * @swagger
+ * /attendance/course/{course_id}/sessions:
+ *   get:
+ *     summary: Get all attendance sessions and student attendance for a course
+ *     tags: [Attendance]
+ *     parameters:
+ *       - in: path
+ *         name: course_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         example: 2
+ *     responses:
+ *       200:
+ *         description: List of attendance sessions with all student attendance
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/AttendanceSession'
+ *       400:
+ *         description: Missing course_id
  */
 //# sourceMappingURL=attendance.route.js.map

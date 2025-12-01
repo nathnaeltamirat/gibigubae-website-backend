@@ -1,4 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import { student } from "./Student.js";
+import { AttendanceSession } from "./AttendanceSession.js";
 
 export type AttendanceStatus = "present" | "late" | "absent";
 
@@ -7,18 +9,12 @@ export class attendance {
   @PrimaryGeneratedColumn({ name: "attendance_id" })
   id!: number;
 
-  @ManyToOne("student", "attendances", { eager: true })
-  student!: any; // runtime value handled by TypeORM
+  @ManyToOne(() => student, (s) => s.attendances, { eager: true })
+  student!: student;
 
-  @ManyToOne("course", "attendances", { eager: true })
-  course!: any;
-
-  @Column({ type: "timestamp" })
-  date!: Date;
+  @ManyToOne(() => AttendanceSession, (session) => session.attendances, { eager: true })
+  session!: AttendanceSession;
 
   @Column({ type: "enum", enum: ["present", "late", "absent"], default: "absent" })
   status!: AttendanceStatus;
-
-  @Column({ nullable: true })
-  code?: string;
 }

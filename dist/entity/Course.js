@@ -8,7 +8,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
-import { attendance } from "./Attendance.js";
+import { AttendanceSession } from "./AttendanceSession.js";
 import { enrollment } from "./Enrollment.js";
 let course = class course {
     id;
@@ -18,8 +18,10 @@ let course = class course {
     end_date;
     enrollment_start_date;
     enrollment_deadline;
-    attendances;
+    sessions;
     enrollments;
+    created_at;
+    updated_at;
 };
 __decorate([
     PrimaryGeneratedColumn({ name: "course_id" }),
@@ -50,13 +52,25 @@ __decorate([
     __metadata("design:type", Date)
 ], course.prototype, "enrollment_deadline", void 0);
 __decorate([
-    OneToMany(() => attendance, (att) => att.course),
+    OneToMany(() => AttendanceSession, (session) => session.course, { cascade: true }),
     __metadata("design:type", Array)
-], course.prototype, "attendances", void 0);
+], course.prototype, "sessions", void 0);
 __decorate([
-    OneToMany(() => enrollment, (enroll) => enroll.course),
+    OneToMany(() => enrollment, (enroll) => enroll.course, { cascade: true }),
     __metadata("design:type", Array)
 ], course.prototype, "enrollments", void 0);
+__decorate([
+    Column({ type: "timestamptz", default: () => "CURRENT_TIMESTAMP" }),
+    __metadata("design:type", Date)
+], course.prototype, "created_at", void 0);
+__decorate([
+    Column({
+        type: "timestamptz",
+        default: () => "CURRENT_TIMESTAMP",
+        onUpdate: "CURRENT_TIMESTAMP",
+    }),
+    __metadata("design:type", Date)
+], course.prototype, "updated_at", void 0);
 course = __decorate([
     Entity({ name: "courses" })
 ], course);

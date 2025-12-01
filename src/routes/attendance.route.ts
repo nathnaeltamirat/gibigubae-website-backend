@@ -4,7 +4,7 @@ import {
   markAttendanceQR,
   markAttendanceCode,
   updateAttendanceManual,
-  getCourseAttendance,
+  getCourseAttendanceWithSessions,
   getStudentAttendanceInCourse,
 } from "../controllers/attendance.controller.js";
 import { authenticate } from "../middlewares/authenticator.middleware.js";
@@ -16,7 +16,7 @@ attendanceRouter.get("/mark/qr", authenticate, markAttendanceQR);
 attendanceRouter.post("/mark/code", authenticate, markAttendanceCode);
 attendanceRouter.put("/manual", authenticate, updateAttendanceManual);
 
-attendanceRouter.get("/course/:courseId", authenticate, getCourseAttendance);
+attendanceRouter.get("/course/:courseId", authenticate, getCourseAttendanceWithSessions);
 attendanceRouter.get("/course/:courseId/student", authenticate, getStudentAttendanceInCourse);
 
 export default attendanceRouter;

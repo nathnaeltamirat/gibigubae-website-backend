@@ -4,6 +4,7 @@ import { attendance } from "../entity/Attendance.js";
 import { student } from "../entity/Student.js";
 import { course } from "../entity/Course.js";
 import { enrollment } from "../entity/Enrollment.js";
+import { AttendanceSession } from "../entity/AttendanceSession.js";
 import type { AuthenticatedRequest } from "../types/express.js";
 
 // ----------------------------
@@ -38,9 +39,10 @@ const attendanceRepo = AppDataSource.getRepository(attendance);
 const studentRepo = AppDataSource.getRepository(student);
 const courseRepo = AppDataSource.getRepository(course);
 const enrollmentRepo = AppDataSource.getRepository(enrollment);
+const attendanceSessionRepo = AppDataSource.getRepository(AttendanceSession);
 
 // ----------------------------
-// 📅 Create attendance
+// 📅 Create attendance (single session)
 // ----------------------------
 export const createAttendance = async (req: Request, res: Response) => {
   try {
@@ -50,7 +52,6 @@ export const createAttendance = async (req: Request, res: Response) => {
     }
 
     const { course_id, code, start_in_minutes } = req.body;
-
     if (!course_id || !code || start_in_minutes == null) {
       throw {
         statusCode: 400,
@@ -73,19 +74,33 @@ export const createAttendance = async (req: Request, res: Response) => {
       now.getTime() + Number(start_in_minutes) * 60000
     );
 
+    // 1️⃣ Create a single attendance session
+    const session = attendanceSessionRepo.create({
+      course: courseEntity,
+      date: classStartTime,
+      code,
+    });
+    await attendanceSessionRepo.save(session);
+
+    // 2️⃣ Create attendance records for all students under this session
     const records = enrollments.map((enroll) =>
       attendanceRepo.create({
         student: enroll.student,
-        course: courseEntity,
-        date: classStartTime,
+        session: session,
         status: "absent",
-        code,
       })
     );
-
     await attendanceRepo.save(records);
 
-    res.status(201).json({ success: true, data: records });
+    res.status(201).json({
+      success: true,
+      session_id: session.id,
+      attendances: records.map((r) => ({
+        attendance_id: r.id,
+        student_id: r.student.id,
+        status: r.status,
+      })),
+    });
   } catch (err) {
     handleError(res, err);
   }
@@ -96,31 +111,36 @@ export const createAttendance = async (req: Request, res: Response) => {
 // ----------------------------
 export const markAttendanceQR = async (req: Request, res: Response) => {
   try {
-    const { student_id, course_id } = req.query;
+    const { student_id, attendance_id } = req.query;
 
-    if (!student_id || !course_id) {
+    if (!student_id || !attendance_id) {
       throw {
         statusCode: 400,
-        message: "student_id and course_id are required",
+        message: "student_id and attendance_id are required",
       };
     }
 
     const record = await attendanceRepo.findOne({
       where: {
         student: { id: Number(student_id) },
-        course: { id: Number(course_id) },
+        id: Number(attendance_id),
       },
+      relations: ["session"],
     });
 
     if (!record) throw { statusCode: 404, message: "Attendance not found" };
 
-    const recordDate = new Date(record.date);
+    const recordDate = new Date(record.session.date);
     const now = new Date();
     const lateWindow = new Date(recordDate);
     lateWindow.setMinutes(recordDate.getMinutes() + 30);
 
     record.status =
-      now <= recordDate ? "present" : now <= lateWindow ? "late" : "absent";
+      now <= recordDate
+        ? "present"
+        : now <= lateWindow
+        ? "late"
+        : "absent";
 
     await attendanceRepo.save(record);
     res.json({ success: true, data: record });
@@ -134,27 +154,27 @@ export const markAttendanceQR = async (req: Request, res: Response) => {
 // ----------------------------
 export const markAttendanceCode = async (req: Request, res: Response) => {
   try {
-    const { student_id, course_id, code } = req.body;
+    const { student_id, code, attendance_id } = req.body;
 
-    if (!student_id || !course_id || !code) {
+    if (!student_id || !code || !attendance_id) {
       throw {
         statusCode: 400,
-        message: "student_id, course_id, and code are required",
+        message: "student_id, attendance_id, and code are required",
       };
     }
 
     const record = await attendanceRepo.findOne({
       where: {
         student: { id: Number(student_id) },
-        course: { id: Number(course_id) },
-        code,
+        session: { id: Number(attendance_id), code },
       },
+      relations: ["session"],
     });
 
     if (!record)
       throw { statusCode: 404, message: "Invalid code or record not found" };
 
-    const recordDate = new Date(record.date);
+    const recordDate = new Date(record.session.date);
     const now = new Date();
     const lateWindow = new Date(recordDate);
     lateWindow.setMinutes(recordDate.getMinutes() + 30);
@@ -202,16 +222,16 @@ export const updateAttendanceManual = async (req: Request, res: Response) => {
 };
 
 // ----------------------------
-// 📚 Get all attendance for a course
+// 📚 Get all attendance for a session
 // ----------------------------
-export const getCourseAttendance = async (req: Request, res: Response) => {
+export const getSessionAttendance = async (req: Request, res: Response) => {
   try {
-    const { courseId } = req.params;
-    if (!courseId) throw { statusCode: 400, message: "courseId is required" };
+    const { sessionId } = req.params;
+    if (!sessionId) throw { statusCode: 400, message: "sessionId is required" };
 
     const records = await attendanceRepo.find({
-      where: { course: { id: Number(courseId) } },
-      relations: ["student", "course"],
+      where: { session: { id: Number(sessionId) } },
+      relations: ["student", "session", "session.course"],
     });
 
     res.json({ success: true, data: records });
@@ -239,13 +259,47 @@ export const getStudentAttendanceInCourse = async (
 
     const records = await attendanceRepo.find({
       where: {
-        course: { id: Number(courseId) },
+        session: { course: { id: Number(courseId) } },
         student: { id: Number(studentId) },
       },
-      relations: ["student", "course"],
+      relations: ["student", "session", "session.course"],
     });
 
     res.json({ success: true, data: records });
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+// ----------------------------
+// 📊 Get all attendance sessions and student attendance for a course
+// ----------------------------
+export const getCourseAttendanceWithSessions = async (req: Request, res: Response) => {
+  try {
+    const { course_id } = req.params;
+    if (!course_id) throw { statusCode: 400, message: "course_id is required" };
+
+    // Fetch all sessions for the course
+    const sessions = await attendanceSessionRepo.find({
+      where: { course: { id: Number(course_id) } },
+      relations: ["course", "attendances", "attendances.student"],
+      order: { date: "ASC" },
+    });
+
+    // Format response
+    const formatted = sessions.map((session) => ({
+      session_id: session.id,
+      code: session.code,
+      date: session.date,
+      attendances: session.attendances.map((a) => ({
+        attendance_id: a.id,
+        student_id: a.student.id,
+        student_name: `${a.student.first_name} ${a.student.father_name}`,
+        status: a.status,
+      })),
+    }));
+
+    res.json({ success: true, data: formatted });
   } catch (err) {
     handleError(res, err);
   }

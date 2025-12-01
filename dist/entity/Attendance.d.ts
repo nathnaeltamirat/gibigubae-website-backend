@@ -1,10 +1,10 @@
+import { student } from "./Student.js";
+import { AttendanceSession } from "./AttendanceSession.js";
 export type AttendanceStatus = "present" | "late" | "absent";
 export declare class attendance {
     id: number;
-    student: any;
-    course: any;
-    date: Date;
+    student: student;
+    session: AttendanceSession;
     status: AttendanceStatus;
-    code?: string;
 }
 //# sourceMappingURL=Attendance.d.ts.map

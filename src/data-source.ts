@@ -9,6 +9,7 @@ import {
   DB_SSL,
   NODE_ENV,
 } from "./config/env.js";
+
 import { student } from "./entity/Student.js";
 import { confession_father } from "./entity/ConfessionFather.js";
 import { department } from "./entity/Department.js";
@@ -22,6 +23,7 @@ import { academic_info } from "./entity/AcademicInfo.js";
 import { attendance } from "./entity/Attendance.js";
 import { course } from "./entity/Course.js";
 import { enrollment } from "./entity/Enrollment.js";
+import { AttendanceSession } from "./entity/AttendanceSession.js";
 
 const isProduction = NODE_ENV === "production";
 
@@ -29,60 +31,40 @@ if (isProduction && !DATABASE_URL) {
   throw new Error("DATABASE_URL must be defined in production");
 }
 
-export const AppDataSource = new DataSource(
-  isProduction
+export const AppDataSource = new DataSource({
+  type: "postgres",
+  ...(isProduction
     ? {
-        type: "postgres",
-        url: DATABASE_URL!, // non-null assertion, safe because we checked above
+        url: DATABASE_URL!,
         ssl: { rejectUnauthorized: false },
-        synchronize: false,
-        logging: true,
-        entities: [
-          student,
-          confession_father,
-          department,
-          language,
-          service_group,
-          service_member,
-          service_sub_group,
-          sub_admin_permission,
-          user_language,
-          academic_info,
-          attendance,
-          course,
-          enrollment
-        ],
-        subscribers: [],
-        migrations: ["dist/migration/**/*.js"],
-        migrationsTableName: "migrations",
       }
     : {
-        type: "postgres",
         host: DB_HOST!,
         port: DB_PORT!,
         username: DB_USERNAME!,
         password: DB_PASSWORD!,
         database: DB_NAME!,
         ssl: DB_SSL,
-        synchronize: false,
-        logging: true,
-        entities: [
-          student,
-          confession_father,
-          department,
-          language,
-          service_group,
-          service_member,
-          service_sub_group,
-          sub_admin_permission,
-          user_language,
-          academic_info,
-          attendance,
-          course,
-          enrollment
-        ],
-        subscribers: [],
-        migrations: ["src/migration/**/*.js"],
-        migrationsTableName: "migrations",
-      }
-);
+      }),
+  synchronize: false,
+  logging: true,
+  entities: [
+    student,
+    confession_father,
+    department,
+    language,
+    service_group,
+    service_member,
+    service_sub_group,
+    sub_admin_permission,
+    user_language,
+    academic_info,
+    course,
+    AttendanceSession,
+    attendance,
+    enrollment,
+  ],
+  subscribers: [],
+  migrations: ["src/migration/**/*.ts"],
+  migrationsTableName: "migrations",
+});

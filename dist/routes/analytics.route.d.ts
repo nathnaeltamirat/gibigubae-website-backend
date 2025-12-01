@@ -1,3 +1,2 @@
-declare const analyticsRouter: import("express-serve-static-core").Router;
-export default analyticsRouter;
+export {};
 //# sourceMappingURL=analytics.route.d.ts.map

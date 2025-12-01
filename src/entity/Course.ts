@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
-import { attendance } from "./Attendance.js";
+import { AttendanceSession } from "./AttendanceSession.js";
 import { enrollment } from "./Enrollment.js";
 
 @Entity({ name: "courses" })
@@ -25,9 +25,19 @@ export class course {
   @Column({ type: "timestamptz", name: "enrollment_deadline" })
   enrollment_deadline!: Date;
 
-  @OneToMany(() => attendance, (att) => att.course)
-  attendances!: attendance[];
+  @OneToMany(() => AttendanceSession, (session) => session.course, { cascade: true })
+  sessions!: AttendanceSession[];
 
-  @OneToMany(() => enrollment, (enroll) => enroll.course)
+  @OneToMany(() => enrollment, (enroll) => enroll.course, { cascade: true })
   enrollments!: enrollment[];
+
+  @Column({ type: "timestamptz", default: () => "CURRENT_TIMESTAMP" })
+  created_at!: Date;
+
+  @Column({
+    type: "timestamptz",
+    default: () => "CURRENT_TIMESTAMP",
+    onUpdate: "CURRENT_TIMESTAMP",
+  })
+  updated_at!: Date;
 }
